@@ -34,7 +34,7 @@ function menu()
 }
 
 //alta de una actividad, da como respuesta un booleano. Si es falso, es porque ya existe el ID. 
-function altaActividad($id)
+function altaActividad()
 {
     global $actividades;
     $res = false;
@@ -42,7 +42,8 @@ function altaActividad($id)
     $descC = trim(fgets(STDIN));
     echo "Ingrese una descripción larga para la actividad:\n";
     $descL = trim(fgets(STDIN));
-    $obj_actividad = new actividad($id, $descC, $descL);
+    $obj_actividad = new actividad(0, $descC, $descL);
+    $obj_actividad ->insertar();
     //se agrega la actividad al arreglo de actividades
     array_push($actividades, $obj_actividad);
     echo "Se añadió : \n" . $obj_actividad . "\n";
@@ -146,6 +147,7 @@ function modificacionActividad($obj_actividad)
         default:
             break;
     }
+    $res = $obj_actividad -> modificar();
     return $res;
 }
 
@@ -285,26 +287,7 @@ function modificacionInscripcion($obj_inscripcion)
 //como un modulo requiere de una actividad, si se elimina una actividad se eliminan los modulos que estén asociadas a ellas
 function bajaActividad($obj_actividad)
 {
-    global $actividades, $modulos;
-    $res = false;
-    //se busca la posición del arreglo donde esté la inscripción
-    foreach ($actividades as $indice => $actividad) {
-        if ($actividad == $obj_actividad) {
-            //se elimina el elemento
-            unset($actividades[$indice]);
-            // Reindexa el arreglo
-            $actividades = array_values($actividades);
-            // se eliminan los módulos relacionados con esa actividad
-            echo "Se eliminó: " . $obj_actividad . " y los módulos que estaban asociados\n";
-            foreach ($modulos as $modulo) {
-                if ($modulo->getObj_actividad() == $obj_actividad) {
-                    bajaModulo($modulo);
-                }
-            }
-
-            $res = true;
-        }
-    }
+    $res = $obj_actividad -> eliminar();
     return $res;
 }
 
@@ -362,23 +345,20 @@ function abmActividad()
     echo "0. salir\n";
     echo "Seleccione una opción: ";
     $opcion = trim(fgets(STDIN));
-    echo "Ingrese el ID de la actividad: ";
-    $id = trim(fgets(STDIN));
-    //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver null
-    $obj_actividad = buscarID($actividades, $id);
     switch ($opcion) {
         case 1:
-            if ($obj_actividad == null) {
-                if (altaActividad($id)) {
+                if (altaActividad()) {
                     echo "Se añadio correctamente la actividad\n";
                 } else {
                     echo "No se añadió correctamente la actividad\n";
                 }
-            } else {
-                echo "El ID de la actividad se encuentra repetido\n";
-            }
             break;
         case 2:
+            echo "Ingrese el ID de la actividad: ";
+            $id = trim(fgets(STDIN));
+            //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver null
+            $obj = new actividad(0,"","");
+            $obj_actividad = buscarID2($obj, $id);
             if ($obj_actividad != null) {
                 if (bajaActividad($obj_actividad)) {
                     echo "Se eliminó correctamente la actividad \n";
@@ -390,9 +370,16 @@ function abmActividad()
             };
             break;
         case 3:
+            echo "Ingrese el ID de la actividad: ";
+            $id = trim(fgets(STDIN));
+            //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver null
+            $obj = new actividad(0,"","");
+            $obj_actividad = buscarID2($obj, $id);
             if ($obj_actividad != null) {
                 if (modificacionActividad($obj_actividad)) {
                     echo "Se modifico correctamente la actividad\n";
+                } else {
+                    echo "No se pudo modificar la actividad";
                 }
             } else {
                 echo "No se encuentra ID de la actividad\n";
@@ -529,6 +516,17 @@ function abmAInscripcion()
 //Las clases que funcionan con buscar ID: actividad, en_linea, inscripcion y modulo 
 function buscarID($arreglo, $id)
 {
+    foreach ($arreglo as $objeto) {
+        if ($objeto->getId() == $id) {
+            return $objeto;
+        }
+    }
+    return null;
+}
+
+function buscarID2($obj, $id)
+{
+    $arreglo = $obj -> listar();
     foreach ($arreglo as $objeto) {
         if ($objeto->getId() == $id) {
             return $objeto;
@@ -762,6 +760,8 @@ while (true) {
             }
             break;
         case '9':
+            $objActividad = new actividad(0,"","");
+            $actividades = $objActividad -> listar();
             echo " ------- Actividades: ----------\n";
             foreach ($actividades as $actividad) {
                 echo $actividad . "\n";
@@ -773,6 +773,11 @@ while (true) {
                 echo $modulo . "\n";
             }
             break;
+        case '11':
+            $obj_actividad1 -> setDescripcionCorta("CARMEN");
+            $obj_actividad1 ->modificar();
+            break;
+
         case '0':
             echo "Saliendo del programa...\n";
             exit;
