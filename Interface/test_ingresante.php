@@ -788,6 +788,8 @@ while (true) {
 }
 
 
+//abm modulos e inscripciones 
 
 //Buscar dado un módulo todos aquellos registros que poseen el mismo DNI y aparecen mas de una vez
+
 
