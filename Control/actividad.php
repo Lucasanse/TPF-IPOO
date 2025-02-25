@@ -112,14 +112,14 @@ class actividad
     public function listar($condicion=""){
 	    $arreglo = null;
 		$base=new BaseDatos();
-		$consultaPersonas="Select * from actividad ";
+		$consulta="Select * from actividad ";
 		if ($condicion!=""){
-		    $consultaPersonas=$consultaPersonas.' where '.$condicion;
+		    $consulta=$consulta.' where '.$condicion;
 		}
-		$consultaPersonas.=" order by id ";
-		//echo $consultaPersonas;
+		$consulta.=" order by id ";
+		//echo $consulta;
 		if($base->Iniciar()){
-			if($base->Ejecutar($consultaPersonas)){				
+			if($base->Ejecutar($consulta)){				
 				$arreglo= array();
 				while($row2=$base->Registro()){
 				    $id=$row2['id'];

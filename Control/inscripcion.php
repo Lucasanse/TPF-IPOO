@@ -108,9 +108,9 @@ class inscripcion
         $actividades = [];
         $modulos = $this->getColObjModulo();
         foreach ($modulos as $modulo) {
-            array_push($actividades, $modulo->getObj_actividad());
+            array_push($actividades, $modulo->getiDActividad());
         }
-        array_push($actividades, $obj_modulo->getObj_actividad());
+        array_push($actividades, $obj_modulo->getiDActividad());
 
         if (count($actividades) === count(array_unique($actividades))) {
             $respuesta = false;

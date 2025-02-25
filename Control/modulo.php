@@ -1,5 +1,6 @@
 <?php
 include_once 'actividad.php';
+include_once "BaseDatos.php";
 
 class modulo
 {
@@ -12,11 +13,12 @@ class modulo
     private $fechaFin;
     private $topeInscripciones;
     private $costo;
-    private $obj_actividad;
+    private $idActividad;
     private $cantidadDeInscriptos;
+    private $mensajeoperacion;
 
     // Constructor
-    public function __construct($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad)
+    public function __construct($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $idActividad)
     {
         $this->id = $id;
         $this->descripcion = $descripcion;
@@ -26,59 +28,32 @@ class modulo
         $this->fechaFin = $fechaFin;
         $this->topeInscripciones = $topeInscripciones;
         $this->costo = $costo;
-        $this->obj_actividad = $obj_actividad;
+        $this->idActividad = $idActividad;
         $this->cantidadDeInscriptos = 0;
     }
 
 
-    // Getter y Setter para el id
-    public function getId()
-    {
-        return $this->id;
-    }
+    // metodos set
 
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    // Getter y Setter para la descripcion
-    public function getDescripcion()
-    {
-        return $this->descripcion;
-    }
-
     public function setDescripcion($descripcion)
     {
         $this->descripcion = $descripcion;
     }
-
-    // Getter y Setter para horario de inicio 
-    public function getHorarioInicio()
-    {
-        return $this->horarioInicio;
-    }
-
+    
     public function setHorarioInicio($horarioInicio)
     {
         $this->horarioInicio = $horarioInicio;
     }
 
-    // Getter y Setter para horario de cierre
-    public function getHorarioCierre()
-    {
-        return $this->horarioCierre;
-    }
-
+    
     public function setHorarioCierre($horarioCierre)
     {
         $this->horarioCierre = $horarioCierre;
-    }
-
-    // Getter y Setter para fecha de inicio
-    public function getFechaInicio()
-    {
-        return $this->fechaInicio;
     }
 
     public function setFechaInicio($fechaInicio)
@@ -86,21 +61,9 @@ class modulo
         $this->fechaInicio = $fechaInicio;
     }
 
-    // Getter y Setter para fecha final 
-    public function getFechaFin()
-    {
-        return $this->fechaFin;
-    }
-
     public function setFechaFin($fechaFin)
     {
         $this->fechaFin = $fechaFin;
-    }
-
-    // Getter y Setter para el tope de inscripciones
-    public function getTopeInscripciones()
-    {
-        return $this->topeInscripciones;
     }
 
     public function setTopeInscripciones($topeInscripciones)
@@ -108,32 +71,84 @@ class modulo
         $this->topeInscripciones = $topeInscripciones;
     }
 
-    // Getter y Setter para el costo
-    public function getCosto()
-    {
-        return $this->costo;
-    }
-
     public function setCosto($costo)
     {
         $this->costo = $costo;
     }
 
-    // Getter y Setter para la actividad
-    public function getObj_actividad()
+    public function setIDActividad($idActividad)
     {
-        return $this->obj_actividad;
+        $this->idActividad = $idActividad;
     }
 
-    public function setObj_actividad($obj_actividad)
+    public function setmensajeoperacion($mensajeoperacion)
     {
-        $this->obj_actividad = $obj_actividad;
+        $this->mensajeoperacion = $mensajeoperacion;
     }
+
+    public function setCantidadInscriptos($cantidadDeInscriptos){
+        $this -> cantidadDeInscriptos = $cantidadDeInscriptos;
+    }
+    //Metodos get
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getDescripcion()
+    {
+        return $this->descripcion;
+    }
+
+    public function getHorarioInicio()
+    {
+        return $this->horarioInicio;
+    }
+
+    public function getHorarioCierre()
+    {
+        return $this->horarioCierre;
+    }
+
+    public function getFechaInicio()
+    {
+        return $this->fechaInicio;
+    }
+
+    public function getFechaFin()
+    {
+        return $this->fechaFin;
+    }
+
+
+    public function getTopeInscripciones()
+    {
+        return $this->topeInscripciones;
+    }
+
+    public function getCosto()
+    {
+        return $this->costo;
+    }
+
+    public function getiDActividad()
+    {
+        return $this->idActividad;
+    }
+
+    public function getmensajeoperacion()
+    {
+        return $this->mensajeoperacion;
+    }
+
 
     public function getcantidadDeInscriptos()
     {
         return $this->cantidadDeInscriptos;
     }
+
+    
     //se añade un valor a la variable de cantidad de inscriptos actuales 
     //Retorna verdadero o falso, si el módulo está completo de personas, devuelve falso. 
     public function sumarUnInscripto(){
@@ -143,6 +158,8 @@ class modulo
         } else {
             $res = false;
         }
+        //se modifica el nuevo valor en la base de datos;
+        $this -> modificar();
         return $res;
     }
     //resta un valor a la variable de cantidad de inscriptos actuales 
@@ -153,6 +170,8 @@ class modulo
         } else {
             $res = false;
         }
+        //se modifica el nuevo valor en la base de datos;
+        $this -> modificar();
         return $res;
     }
 
@@ -185,8 +204,148 @@ class modulo
             . " hasta el " . $this->getFechaFin()
             . " | Tope: " . $this->getTopeInscripciones()
             . " | Costo: " . $this->getCosto()
-            . " | " . $this->getObj_actividad();
+            . " | Actividad nro: " . $this->getiDActividad()
+            . " | Inscriptos actuales: " . $this->getcantidadDeInscriptos();
             
         return $cadena;
     }
+
+    public function insertar()
+    {
+        $base = new baseDatos();
+        $resp = false;
+        $consultaInsertar = "INSERT INTO Modulo (descripcion, horarioInicio, horarioCierre, fechaInicio, fechaFin, topeInscripciones, costo, cantidadDeInscriptos, actividad_id)
+				VALUES ('" . $this->getDescripcion() . "','" . $this->getHorarioInicio() . "','" . $this->getHorarioCierre(). "','" . $this->getFechaInicio(). 
+                "','" . $this->getFechaFin(). "'," . $this->getTopeInscripciones(). "," . $this->getCosto(). "," . 0 . "," . $this->getiDActividad().")";
+
+        if ($base->Iniciar()) {
+            if ($id = $base->devuelveIDInsercion($consultaInsertar)) {
+                $this->setID($id);
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+    public function Buscar($id){
+		$base=new BaseDatos();
+		$consultaPersona="Select * from modulo where id=".$id;
+		$resp= false;
+		if($base->Iniciar()){
+			if($base->Ejecutar($consultaPersona)){
+				if($row2=$base->Registro()){
+				    $this->setID($id);
+					$this->setDescripcion($row2['descripcion']);
+					$this->setHorarioInicio($row2['horarioInicio']);
+                    $this->setHorarioCierre($row2['horarioCierre']);
+                    $this->setFechaInicio($row2['fechaInicio']);
+                    $this->setFechaFin($row2['fechaFin']);
+                    $this->setTopeInscripciones($row2['topeInscripciones']);
+                    $this->setCosto($row2['costo']);
+                    $this->setCantidadInscriptos($row2['cantidadDeInscriptos']);
+                    $this->setIDActividad($row2['actividad_id']);
+					$resp= true;
+				}				
+			
+		 	}	else {
+		 			$this->setmensajeoperacion($base->getError());
+		 		
+			}
+		 }	else {
+		 		$this->setmensajeoperacion($base->getError());
+		 	
+		 }		
+		 return $resp;
+	}	
+
+    public function listar($condicion=""){
+	    $arreglo = null;
+		$base=new BaseDatos();
+		$consulta="Select * from modulo ";
+		if ($condicion!=""){
+		    $consulta=$consulta.' where '.$condicion;
+		}
+		$consulta.=" order by id ";
+		//echo $consulta;
+		if($base->Iniciar()){
+			if($base->Ejecutar($consulta)){				
+				$arreglo= array();
+				while($row2=$base->Registro()){
+                    $id = $row2['id'];
+					$desc = $row2['descripcion'];
+					$hi = $row2['horarioInicio'];
+                    $hc = $row2['horarioCierre'];
+                    $fi = $row2['fechaInicio'];
+                    $ff = $row2['fechaFin'];
+                    $topeI = $row2['topeInscripciones'];
+                    $costo = $row2['costo'];
+                    $cantInscriptos = $row2['cantidadDeInscriptos'];
+                    $idAct = $row2['actividad_id'];
+				
+					$modulo=new modulo($id, $desc,$hi, $hc, $fi, $ff, $topeI, $costo, $idAct);
+                    $modulo -> setCantidadInscriptos($cantInscriptos);
+					array_push($arreglo,$modulo);
+	
+				}
+				
+			
+		 	}	else {
+		 			$this->setmensajeoperacion($base->getError());
+		 		
+			}
+		 }	else {
+		 		$this->setmensajeoperacion($base->getError());
+		 	
+		 }	
+		 return $arreglo;
+	}
+
+    public function modificar(){
+	    $resp =false; 
+	    $base=new BaseDatos();
+		$consultaModifica="UPDATE modulo 
+                           SET descripcion='".$this->getDescripcion()."',horarioInicio='".$this->getHorarioInicio().
+                           "',horarioCierre='".$this->getHorarioCierre(). "',fechaInicio='".$this->getFechaInicio().
+                           "',fechaFin='".$this->getFechaFin()."',topeInscripciones=".$this->getTopeInscripciones().
+                           ",costo=".$this->getCosto(). ",cantidadDeInscriptos=".$this->getcantidadDeInscriptos().
+                           ",actividad_id=".$this->getiDActividad()." WHERE id=".$this->getID();
+						   
+		if($base->Iniciar()){
+			if($base->Ejecutar($consultaModifica)){
+			    $resp=  true;
+			}else{
+				$this->setmensajeoperacion($base->getError());
+				
+			}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp;
+	}
+
+    public function eliminar(){
+		$base=new BaseDatos();
+		$resp=false;
+		if($base->Iniciar()){
+				$consultaBorra="DELETE FROM modulo WHERE id=".$this->getID();
+				if($base->Ejecutar($consultaBorra)){
+				    $resp=  true;
+				}else{
+						$this->setmensajeoperacion($base->getError());
+					
+				}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp; 
+	}
+
+
+
 }
