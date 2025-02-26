@@ -716,6 +716,8 @@ while (true) {
             break;
         case '4':
             echo " ------- Inscripciones: ----------\n";
+            $obj = new inscripcion(0,0,0,0);
+            $inscripciones = $obj -> listar();
             foreach ($inscripciones as $inscripcion) {
                 echo $inscripcion . "\n";
             }
@@ -755,10 +757,11 @@ while (true) {
             }
             break;
         case '11':
-            $obj = new enLinea(5, "Robotica en linea", "13:30", "15:00", "03/05/2025", "03/08/2025", 20, 1200, 13, "www.google.com", 20);
-
-            if ($obj->Buscar(17)) {
+            $obj = new inscripcion(0,"2025-10-12","99887766","Cédula");
+            
+            if ($obj -> buscar(11)) {
                 $obj->eliminar();
+                echo "SE ELIMINO: ". $obj;
             } else {
                 echo "NO";
             }

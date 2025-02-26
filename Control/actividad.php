@@ -87,10 +87,10 @@ class actividad
 
     public function Buscar($id){
 		$base=new BaseDatos();
-		$consultaPersona="Select * from actividad where id=".$id;
+		$consulta="Select * from actividad where id=".$id;
 		$resp= false;
 		if($base->Iniciar()){
-			if($base->Ejecutar($consultaPersona)){
+			if($base->Ejecutar($consulta)){
 				if($row2=$base->Registro()){
 				    $this->setID($id);
 					$this->setDescripcionCorta($row2['descripcionCorta']);

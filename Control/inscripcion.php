@@ -2,86 +2,106 @@
 include_once 'modulo.php';
 include_once 'en_linea.php';
 include_once 'ingresante.php';
+include_once "BaseDatos.php";
 
 class inscripcion
 {
     private $id;
     private $fecha;
     private $costoFinal;
+    private $dniIngresante;
+    private $tipoDNI;
+    private $mensajeoperacion;
     private $col_objModulo;
-    private $ingresante;
 
     //constructor 
-    public function __construct($id, $fecha, $col_objModulo, $ingresante)
+    public function __construct($id, $fecha, $dniIngresante, $tipoDNI)
     {
         $this->id = $id;
         $this->fecha = $fecha;
-        $this->col_objModulo = $col_objModulo;
-        $this->ingresante = $ingresante;
-        $this->costoFinal = $this->darCostoInscripcion();
+        $this->dniIngresante = $dniIngresante;
+        $this->tipoDNI = $tipoDNI;
+        $this->col_objModulo = $this->extraerModulos();
+        if($this->col_objModulo == null){
+            $this->costoFinal = 0;
+        } else {
+            $this->costoFinal = $this->darCostoInscripcion();
+        }
+        
+        
     }
 
-    // Métodos set y get para $id
+    // Métodos set 
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    public function getId()
-    {
-        return $this->id;
-    }
-
-
-    // Métodos set y get para $fecha
     public function setFecha($fecha)
     {
         $this->fecha = $fecha;
     }
 
-    public function getFecha()
-    {
-        return $this->fecha;
-    }
-
-    // Métodos set y get para $costoFinal
     public function setCostoFinal($costoFinal)
     {
         $this->costoFinal = $costoFinal;
     }
 
+    public function setdniIngresante($dniIngresante)
+    {
+        $this->dniIngresante = $dniIngresante;
+    }
+    public function setTipoDNI($tipoDNI)
+    {
+        $this->tipoDNI = $tipoDNI;
+    }
+    public function setCol_objModulo($col_objModulo)
+    {
+        $this->col_objModulo = $col_objModulo;
+    }
+    public function setmensajeoperacion($mensajeoperacion)
+    {
+        $this->mensajeoperacion = $mensajeoperacion;
+    }
+
+    // Métodos get
+    public function getId()
+    {
+        return $this->id;
+    }
+    public function getFecha()
+    {
+        return $this->fecha;
+    }
     public function getCostoFinal()
     {
         return $this->costoFinal;
     }
-
-    // Métodos set y get para $col_objModulo
-    public function setColObjModulo($col_objModulo)
+    public function getdniIngresante()
     {
-        $this->col_objModulo = $col_objModulo;
+        return $this->dniIngresante;
     }
-
-    public function getColObjModulo()
+    public function getTipoDNI()
+    {
+        return $this->tipoDNI;
+    }
+    public function getmensajeoperacion()
+    {
+        return $this->mensajeoperacion;
+    }
+    public function getCol_objModulo()
     {
         return $this->col_objModulo;
     }
 
-    // Métodos set y get para $ingresante
-    public function setIngresante($ingresante)
-    {
-        $this->ingresante = $ingresante;
-    }
 
-    public function getIngresante()
-    {
-        return $this->ingresante;
-    }
+
 
     //crea una cadena con una lista de los modulos incorporados a la inscripción
     public function listarModulos()
     {
         $cadena = "";
-        $modulos = $this->getColObjModulo();
+        $modulos = $this->getCol_objModulo();
         foreach ($modulos as $modulo) {
             $cadena .= "\n" . "------" . $modulo->toStringBreve();
         }
@@ -92,11 +112,12 @@ class inscripcion
     public function darCostoInscripcion()
     {
         $montoFinal = 0;
-        $modulos = $this->getColObjModulo();
+        $modulos = $this->getCol_objModulo();
         foreach ($modulos as $modulo) {
             $montoFinal += $modulo->darCostoModulo();
         }
         $this->setCostoFinal($montoFinal);
+        $this -> modificar();
         return $montoFinal;
     }
 
@@ -106,7 +127,7 @@ class inscripcion
     {
         $respuesta = true;
         $actividades = [];
-        $modulos = $this->getColObjModulo();
+        $modulos = $this->getCol_objModulo();
         foreach ($modulos as $modulo) {
             array_push($actividades, $modulo->getiDActividad());
         }
@@ -123,7 +144,7 @@ class inscripcion
     public function existeModulo($obj_modulo)
     {
         $res = true;
-        $modulos = $this->getColObjModulo();
+        $modulos = $this->getCol_objModulo();
         array_push($modulos, $obj_modulo);
         //si no hay elementos repetidos una vez que agregamos el modulo, quiere decir que no contiene dicho modulo
         if (count($modulos) === count(array_unique($modulos))) {
@@ -136,22 +157,22 @@ class inscripcion
     //si es verdadero, la actividad pasada por parametro ya existe en alguno de los módulos
     public function existeActividad($obj_actividad)
     {
-        $modulos = $this->getColObjModulo();
-        foreach ($modulos as $modulo){
-            if ($modulo -> getObj_actividad() == $obj_actividad){
+        $modulos = $this->getCol_objModulo();
+        foreach ($modulos as $modulo) {
+            if ($modulo->getObj_actividad() == $obj_actividad) {
                 return true;
             }
         }
         return false;
     }
 
-    public function extraerActividades (){
+    public function extraerActividades()
+    {
         $res = [];
-        foreach ($this -> col_objModulo as $modulo){
-            array_push($res, $modulo -> getObj_actividad());
+        foreach ($this->getCol_objModulo() as $modulo) {
+            array_push($res, $modulo->getObj_actividad());
         }
         return $res;
-
     }
 
 
@@ -177,21 +198,169 @@ class inscripcion
         return $res;
     }
 
-    public function eliminarModulo($obj_modulo){
+    public function eliminarModulo($obj_modulo)
+    {
         $res = false;
-        foreach ($this -> col_objModulo as $indice => $modulo) {
+        foreach ($this->col_objModulo as $indice => $modulo) {
             if ($modulo == $obj_modulo) {
                 //se elimina el elemento, se quita un cupo en el modulo y se vuelve a calcular el precio de la inscripción
-                unset($this -> col_objModulo[$indice]); 
-                $modulo -> restarUnInscripto();
-                $this -> darCostoInscripcion();
+                unset($this->col_objModulo[$indice]);
+                $modulo->restarUnInscripto();
+                $this->darCostoInscripcion();
                 $res = true;
             }
         }
         // Reindexa el arreglo
-        $this->col_objModulo = array_values($this-> col_objModulo); 
+        $this->col_objModulo = array_values($this->col_objModulo);
         return $res;
     }
+
+    public function extraerModulos()
+    {
+        $base = new BaseDatos();
+        $consulta = "SELECT M.id FROM Modulo M JOIN Inscripcion_Modulo IM ON M.id = IM.modulo_id WHERE IM.inscripcion_id =" . $this->getId();
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                $modulos = array();
+                while ($row2 = $base->Registro()) {
+                    $id = $row2['id'];
+                    $modulo = new enLinea(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    //si el modulo no está en linea 
+                    if (!$modulo->buscar($id)) {
+                        $modulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        $modulo->buscar($id);
+                    }
+                    array_push($modulos, $modulo);
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $modulos;
+    }
+
+    public function insertar()
+    {
+        $base = new baseDatos();
+        $resp = false;
+        $consultaInsertar = "INSERT INTO inscripcion (fecha, costoFinal, dni, tipoDni) 
+				VALUES ('" . $this->getFecha() . "','" . $this->getCostoFinal() . "','" .
+            $this->getdniIngresante() . "','" . $this->getTipoDNI() . "')";
+
+        if ($base->Iniciar()) {
+            if ($id = $base->devuelveIDInsercion($consultaInsertar)) {
+                $this->setID($id);
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+    public function listar($condicion = "")
+    {
+        $arreglo = null;
+        $base = new BaseDatos();
+        $consulta = "Select * from inscripcion ";
+        if ($condicion != "") {
+            $consulta = $consulta . ' where ' . $condicion;
+        }
+        $consulta .= " order by id ";
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                $arreglo = array();
+                while ($row2 = $base->Registro()) {
+                    $id = $row2['id'];
+                    $fecha = $row2['fecha'];
+                    $dni = $row2['dni'];
+                    $tipodni = $row2['tipoDni'];
+
+                    $inscripcion = new inscripcion($id, $fecha, $dni, $tipodni);
+                    array_push($arreglo, $inscripcion);
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $arreglo;
+    }
+
+
+
+
+    public function Buscar($id)
+    {
+        $base = new BaseDatos();
+        $consulta = "SELECT * FROM inscripcion WHERE id=" . $id;
+        $resp = false;
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                if ($row2 = $base->Registro()) {
+                    $this->setID($id);
+                    $this->setFecha($row2['fecha']);
+                    $this->setdniIngresante($row2['dni']);
+                    $this->setTipoDNI($row2['tipoDni']);
+                    $this -> setCol_objModulo($this -> extraerModulos());
+                    $this->setCostoFinal($this -> darCostoInscripcion());
+                    $resp = true;
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+
+    public function modificar(){
+	    $resp =false; 
+	    $base=new BaseDatos();
+		$consultaModifica="UPDATE inscripcion 
+                           SET fecha='".$this->getFecha()."',costoFinal=".$this->getCostoFinal().
+                           ",dni='".$this->getdniIngresante(). "',tipoDni='".$this->getTipoDNI().
+                           "' WHERE id=".$this->getID();
+						   
+		if($base->Iniciar()){
+			if($base->Ejecutar($consultaModifica)){
+			    $resp=  true;
+			}else{
+				$this->setmensajeoperacion($base->getError());
+				
+			}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp;
+	}
+
+    public function eliminar(){
+		$base=new BaseDatos();
+		$resp=false;
+		if($base->Iniciar()){
+				$consultaBorra="DELETE FROM inscripcion WHERE id=".$this->getID();
+				if($base->Ejecutar($consultaBorra)){
+				    $resp=  true;
+				}else{
+						$this->setmensajeoperacion($base->getError());
+					
+				}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp; 
+	}
+
 
 
     public function __toString()
@@ -199,9 +368,10 @@ class inscripcion
         $cadena = "\n\n"
             . "DATO DE LA INSCRIPCION " . $this->getId()
             . " | Fecha: " . $this->getFecha()
-            . " " . $this->getIngresante()
-            . "\n Modulos: " . $this->listarModulos()
-            . "\n Costo: " . $this->getCostoFinal();
+            . " | Ingresante con DNI: " . $this->getTipoDNI() . " " . $this->getdniIngresante()
+            . " | Costo: $" . $this->getCostoFinal()
+            . "\n Modulos: " . $this->listarModulos();
+            
         return $cadena;
     }
 }
