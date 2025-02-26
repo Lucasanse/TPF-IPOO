@@ -148,12 +148,16 @@ class modulo
         return $this->cantidadDeInscriptos;
     }
 
+    //funcion que devuelve un boolean en caso de que la gente inscripta sea igua a al tome de ingresantes
+    public function estaLleno(){
+        return $this -> cantidadDeInscriptos >= $this ->topeInscripciones;
+    }
     
     //se añade un valor a la variable de cantidad de inscriptos actuales 
     //Retorna verdadero o falso, si el módulo está completo de personas, devuelve falso. 
     public function sumarUnInscripto(){
         $res = true;
-        if($this -> cantidadDeInscriptos < $this ->topeInscripciones){
+        if($this -> estaLleno()){
             $this -> cantidadDeInscriptos ++;
         } else {
             $res = false;

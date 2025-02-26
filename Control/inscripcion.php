@@ -22,13 +22,11 @@ class inscripcion
         $this->dniIngresante = $dniIngresante;
         $this->tipoDNI = $tipoDNI;
         $this->col_objModulo = $this->extraerModulos();
-        if($this->col_objModulo == null){
+        if ($this->col_objModulo == null) {
             $this->costoFinal = 0;
         } else {
             $this->costoFinal = $this->darCostoInscripcion();
         }
-        
-        
     }
 
     // Métodos set 
@@ -117,7 +115,7 @@ class inscripcion
             $montoFinal += $modulo->darCostoModulo();
         }
         $this->setCostoFinal($montoFinal);
-        $this -> modificar();
+        $this->modificar();
         return $montoFinal;
     }
 
@@ -182,13 +180,30 @@ class inscripcion
     public function añadirModulo($obj_modulo)
     {
         $res = false;
+        $base = new baseDatos();
         if ($this->actividadRepetida($obj_modulo)) {
             echo "Se está añadiendo un módulo repetido o la actividad del modulo añadido se repite con la actividad de otro módulo\n";
         } else {
-            if ($obj_modulo->sumarUnInscripto()) {
+            //se verifica si no está lleno el modulo
+            if (!$obj_modulo->estaLleno()) {
                 $this->col_objModulo[] = $obj_modulo;
+                //se inserta el dato en la base de datos
+                //Se inserta en la tabla Inscripcion_Modulo, si no hay errores, se actualiza el precio de la inscripción 
+                $consultaInsertar = "INSERT INTO Inscripcion_Modulo (inscripcion_id, modulo_id) 
+				            VALUES (" . $this->getId() . "," . $obj_modulo->getId() . ")";
+                if ($base->Iniciar()) {
+                    if ($base->Ejecutar($consultaInsertar)) {
+                        $obj_modulo->sumarUnInscripto();
+                        $this->darCostoInscripcion();
+                    } else {
+                        $this->setmensajeoperacion($base->getError());
+                    }
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
+
                 //se actualiza el costo de la inscripción
-                $this->darCostoInscripcion();
+
                 $res = true;
             } else {
                 echo "El módulo elegido ya está lleno\n";
@@ -201,13 +216,24 @@ class inscripcion
     public function eliminarModulo($obj_modulo)
     {
         $res = false;
+        $base = new baseDatos();
         foreach ($this->col_objModulo as $indice => $modulo) {
             if ($modulo == $obj_modulo) {
                 //se elimina el elemento, se quita un cupo en el modulo y se vuelve a calcular el precio de la inscripción
-                unset($this->col_objModulo[$indice]);
-                $modulo->restarUnInscripto();
-                $this->darCostoInscripcion();
-                $res = true;
+                $consultaEliminar = "DELETE FROM Inscripcion_Modulo WHERE inscripcion_id =".$this->getId()." AND modulo_id =" .$obj_modulo ->getID();
+                echo $consultaEliminar . "\n";
+                if ($base->Iniciar()) {
+                    if ($base->Ejecutar($consultaEliminar)) {
+                        unset($this->col_objModulo[$indice]);
+                        $modulo->restarUnInscripto();
+                        $this->darCostoInscripcion();
+                        $res = true;
+                    } else {
+                        $this->setmensajeoperacion($base->getError());
+                    }
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
             }
         }
         // Reindexa el arreglo
@@ -215,6 +241,7 @@ class inscripcion
         return $res;
     }
 
+    //funcion que evalua en la base de datos la tabla inscripcion_modulo y devuelve un arreglo con los objetos modulos
     public function extraerModulos()
     {
         $base = new BaseDatos();
@@ -307,8 +334,8 @@ class inscripcion
                     $this->setFecha($row2['fecha']);
                     $this->setdniIngresante($row2['dni']);
                     $this->setTipoDNI($row2['tipoDni']);
-                    $this -> setCol_objModulo($this -> extraerModulos());
-                    $this->setCostoFinal($this -> darCostoInscripcion());
+                    $this->setCol_objModulo($this->extraerModulos());
+                    $this->setCostoFinal($this->darCostoInscripcion());
                     $resp = true;
                 }
             } else {
@@ -321,45 +348,43 @@ class inscripcion
     }
 
 
-    public function modificar(){
-	    $resp =false; 
-	    $base=new BaseDatos();
-		$consultaModifica="UPDATE inscripcion 
-                           SET fecha='".$this->getFecha()."',costoFinal=".$this->getCostoFinal().
-                           ",dni='".$this->getdniIngresante(). "',tipoDni='".$this->getTipoDNI().
-                           "' WHERE id=".$this->getID();
-						   
-		if($base->Iniciar()){
-			if($base->Ejecutar($consultaModifica)){
-			    $resp=  true;
-			}else{
-				$this->setmensajeoperacion($base->getError());
-				
-			}
-		}else{
-				$this->setmensajeoperacion($base->getError());
-			
-		}
-		return $resp;
-	}
+    public function modificar()
+    {
+        $resp = false;
+        $base = new BaseDatos();
+        $consultaModifica = "UPDATE inscripcion 
+                           SET fecha='" . $this->getFecha() . "',costoFinal=" . $this->getCostoFinal() .
+            ",dni='" . $this->getdniIngresante() . "',tipoDni='" . $this->getTipoDNI() .
+            "' WHERE id=" . $this->getID();
 
-    public function eliminar(){
-		$base=new BaseDatos();
-		$resp=false;
-		if($base->Iniciar()){
-				$consultaBorra="DELETE FROM inscripcion WHERE id=".$this->getID();
-				if($base->Ejecutar($consultaBorra)){
-				    $resp=  true;
-				}else{
-						$this->setmensajeoperacion($base->getError());
-					
-				}
-		}else{
-				$this->setmensajeoperacion($base->getError());
-			
-		}
-		return $resp; 
-	}
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consultaModifica)) {
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+    public function eliminar()
+    {
+        $base = new BaseDatos();
+        $resp = false;
+        if ($base->Iniciar()) {
+            $consultaBorra = "DELETE FROM inscripcion WHERE id=" . $this->getID();
+            if ($base->Ejecutar($consultaBorra)) {
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
 
 
 
@@ -371,7 +396,7 @@ class inscripcion
             . " | Ingresante con DNI: " . $this->getTipoDNI() . " " . $this->getdniIngresante()
             . " | Costo: $" . $this->getCostoFinal()
             . "\n Modulos: " . $this->listarModulos();
-            
+
         return $cadena;
     }
 }

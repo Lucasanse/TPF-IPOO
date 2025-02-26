@@ -758,10 +758,16 @@ while (true) {
             break;
         case '11':
             $obj = new inscripcion(0,"2025-10-12","99887766","Cédula");
+            $objM = new modulo(0,0,0,0,0,0,0,0,0);
             
-            if ($obj -> buscar(11)) {
-                $obj->eliminar();
-                echo "SE ELIMINO: ". $obj;
+            if ($obj -> buscar(4)) {
+                $objM -> buscar(5);
+                if($obj->eliminarModulo($objM)){
+                    echo "si";
+                } else {
+                    echo "no";
+                }
+               
             } else {
                 echo "NO";
             }
@@ -778,6 +784,12 @@ while (true) {
 }
 
 
-//abm modulos e inscripciones 
+//verificar si existe inscripto
+//checkear de que no esté inscripto
+//extraerActividades (extraerObjetoActividad en la clase modulo)
+//terminar abm inscripciones
+//hacer todas las consultas finales 
+//checkear comentarios y modificar con los params y eso
+
 
 //Buscar dado un módulo todos aquellos registros que poseen el mismo DNI y aparecen mas de una vez
