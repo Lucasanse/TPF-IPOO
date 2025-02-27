@@ -728,6 +728,7 @@ while (true) {
 
 
 //hacer todas las consultas finales 7,8, 9 Y 10
+//cambiar los datos de las tablas nuevamente respetando lo de las actividades y sumando 1 a la cantidad de inscriptos
 //checkear comentarios y modificar con los params y eso
 
 
