@@ -22,8 +22,10 @@ function menu()
     echo "6. Visualziar las inscripciones ralizadas a una actividad determinada\n";
     echo "7. Registros que poseen el mismo DNI y aparecen mas de una vez dado un módulo\n";
     echo "8. Visualizar la informacion de todas las actividades que se inscribió un ingresante\n";
+    echo "------------ EXTRAS ------------\n";
     echo "9. Visualizar las actividades \n";
     echo "10. Visualizar los modulos \n";
+    echo "11. Visualizar los ingresantes \n";
     echo "0. Terminar programa\n";
     echo "Seleccione una opción: ";
 }
@@ -268,7 +270,7 @@ function modificacionInscripcion($obj_inscripcion)
             echo "No es una opción válida";
             break;
     }
-    
+
     if ($obj_inscripcion->modificar()) {
         $res = true;
     }
@@ -452,7 +454,7 @@ function abmAInscripcion()
         case 2:
             echo "Ingrese el ID de la inscripción: ";
             $id = trim(fgets(STDIN));
-            if ($obj_inscripcion ->buscar($id)) {
+            if ($obj_inscripcion->buscar($id)) {
                 if (bajaInscripcion($obj_inscripcion)) {
                     echo "Se eliminó correctamente la inscripción\n";
                 } else {
@@ -465,7 +467,7 @@ function abmAInscripcion()
         case 3:
             echo "Ingrese el ID de la inscripción: ";
             $id = trim(fgets(STDIN));
-            if ($obj_inscripcion ->buscar($id)) {
+            if ($obj_inscripcion->buscar($id)) {
                 if (modificacionInscripcion($obj_inscripcion)) {
                     echo "Se modifico correctamente la inscripción\n";
                 } else {
@@ -514,23 +516,22 @@ function inscripcionesPorModulo()
 {
     echo " Ingresar ID del módulo: ";
     $id = trim(fgets(STDIN));
-    $moduloElegido = new modulo(0,0,0,0,0,0,0,0,0);
-    if ($moduloElegido ->Buscar($id)) {
+    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    if ($moduloElegido->Buscar($id)) {
         $cadena =  "SELECT I.id, I.fecha, I.costoFinal, I.dni, I.tipoDni
                     FROM Inscripcion I
                     JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
-                    WHERE IM.modulo_id =". $id;
-        $inscripcion = new inscripcion(0,0,0,0);
-        $arreglo = $inscripcion -> listar($cadena);
-        if(empty($arreglo)){
-            echo "El modulo ".$id." no tiene inscripciones asociadas\n";
+                    WHERE IM.modulo_id =" . $id;
+        $inscripcion = new inscripcion(0, 0, 0, 0);
+        $arreglo = $inscripcion->listar($cadena);
+        if (empty($arreglo)) {
+            echo "El modulo " . $id . " no tiene inscripciones asociadas\n";
         } else {
             echo "Visualización de de incripciones realizadas al modulo con ID: " . $id . "\n";
             foreach ($arreglo as $inscripcion) {
                 echo $inscripcion;
             }
         }
-        
     } else {
         echo "no se encontró el módulo";
     }
@@ -540,42 +541,65 @@ function inscripcionesPorActividad()
 {
     echo " Ingresar ID de la actividad: \n";
     $id = trim(fgets(STDIN));
-    $obj_actividad = new actividad(0,0,0,0);
-    if ($obj_actividad ->Buscar($id)) {
+    $obj_actividad = new actividad(0, 0, 0, 0);
+    if ($obj_actividad->Buscar($id)) {
         echo "Visualización de de incripciones realizadas con la actividad: " . $obj_actividad . "\n";
         $cadena = "SELECT I.id, I.fecha, I.dni, I.tipoDni
                     FROM Inscripcion I
                     JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
                     JOIN Modulo M ON IM.modulo_id = M.id
                     JOIN Actividad A ON M.actividad_id = A.id
-                    WHERE A.id = ". $id;
-        $inscripcion = new inscripcion(0,0,0,0);
-        $arreglo = $inscripcion -> listar($cadena);
-        if(empty($arreglo)){
-            echo "la actividad ".$id." no tiene inscripciones asociadas\n";
+                    WHERE A.id = " . $id;
+        $inscripcion = new inscripcion(0, 0, 0, 0);
+        $arreglo = $inscripcion->listar($cadena);
+        if (empty($arreglo)) {
+            echo "la actividad " . $id . " no tiene inscripciones asociadas\n";
         } else {
             echo "Visualización de de inscripciones realizadas a la actividad con ID: " . $id . "\n";
             foreach ($arreglo as $inscripcion) {
                 echo $inscripcion;
             }
         }
-        
     } else {
         echo "no se encontró la actividad";
     }
 }
 
-
-//función que verifica si un ingresante ya está inscripto
-function yaEstaiInscripto($obj_ingresante)
+//dado un modulo y un ingresante, devuelve la informacion de la inscripción 
+function inscripcionesPorDNIyModulo()
 {
-    global $inscripciones;
-    foreach ($inscripciones as $inscripcion) {
-        if ($inscripcion->getIngresante() == $obj_ingresante) {
-            return true;
+    echo " Ingresar ID del módulo: ";
+    $id = trim(fgets(STDIN));
+    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    if ($moduloElegido->Buscar($id)) {
+        echo " Ingresar DNI del inscripto: ";
+        $dni = trim(fgets(STDIN));
+        echo " Ingresar tipo de DNI del inscripto: ";
+        $tipodni = trim(fgets(STDIN));
+        $ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+        if ($ingresante->buscar($dni, $tipodni)) {
+            $cadena =  "SELECT I.id, I.fecha, I.costoFinal, I.dni, I.tipoDni
+                        FROM Inscripcion I
+                        JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
+                        JOIN Ingresante Ing ON I.dni = Ing.dni AND I.tipoDni = Ing.tipoDni
+                        WHERE IM.modulo_id =" . $id . " AND I.dni = '" . $dni . "' AND I.tipoDni = '" . $tipodni . "'";
+            $inscripcion = new inscripcion(0, 0, 0, 0);
+            echo $cadena . "\n";
+            $arreglo = $inscripcion->listar($cadena);
+            if (empty($arreglo)) {
+                echo "El modulo " . $id . " no tiene inscripciones asociadas\n";
+            } else {
+                echo "Visualización de la inscripción del módulo " . $id . " vinculada al ingresante: " . $dni . $tipodni . "\n";
+                foreach ($arreglo as $inscripcion) {
+                    echo $inscripcion;
+                }
+            }
+        } else {
+            echo "No se encontró un ingresante con ese dni o tipo de DNI\n";
         }
+    } else {
+        echo "No se encontró el módulo\n";
     }
-    return false;
 }
 
 //funcion que añade un modulo a una inscripcion pasada por parametro
@@ -619,25 +643,34 @@ function eliminarModuloAUnaInscripcion($obj_inscripcion)
         }
     }
 }
-//funcion que al buscar un ingresante, devuelve todas las actividades en las que está inscripto
+//funcion que al buscar un ingresante (tipo y DNI), devuelve todas las actividades en las que está inscripto
 function actividadesPorIngresantes()
 {
-    global $inscripciones, $ingresantes;
-    $res = [];
-    echo " Ingresar el DNI del estudiante: \n";
+    echo " Ingresar dni del ingresante: \n";
     $dni = trim(fgets(STDIN));
-    $ingresanteElegido = buscarDNI($ingresantes, $dni);
-    if ($ingresanteElegido != null) {
-        foreach ($inscripciones as $inscripcion) {
-            if ($inscripcion->getIngresante() == $ingresanteElegido) {
-                $res = $inscripcion->extraerActividades();
-                break;
+    echo " Ingresar tipo DNI del ingresante \n";
+    $tipoDni = trim(fgets(STDIN));
+    $ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+    if ($ingresante->Buscar($dni, $tipoDni)) {
+        $cadena = "SELECT A.id, A.descripcionCorta, A.descripcionLarga
+                    FROM Inscripcion I
+                    JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
+                    JOIN Modulo M ON IM.modulo_id = M.id
+                    JOIN Actividad A ON M.actividad_id = A.id
+                    WHERE I.dni = '" . $dni . "' AND I.tipoDni = '" . $tipoDni . "'";
+        $actividad = new actividad(0, 0, 0, 0);
+        $arreglo = $actividad->listar($cadena);
+        if (empty($arreglo)) {
+            echo "El ingresante: " . $dni . " " . $tipoDni . " no tiene actividades asociadas\n";
+        } else {
+            echo "Visualización de las actividades inscriptas del ingresante: " . $dni . " " . $tipoDni . "\n";
+            foreach ($arreglo as $actividad) {
+                echo $actividad;
             }
         }
     } else {
-        echo "No se encuentra ingresante con ese DNI";
+        echo "No se encontró al ingresante";
     }
-    return $res;
 }
 
 
@@ -679,19 +712,13 @@ while (true) {
             inscripcionesPorActividad();
             break;
         case '7':
-
+            inscripcionesPorDNIyModulo();
             break;
         case '8':
-            $arregloActividades = actividadesPorIngresantes();
-            if (!empty($arregloActividades)) {
-                echo "Las actividades que está inscripto el alumno son: \n";
-                foreach ($arregloActividades as $actividad) {
-                    echo $actividad;
-                }
-            }
+            actividadesPorIngresantes();
             break;
         case '9':
-            $objActividad = new actividad(0, "", "");
+            $objActividad = new actividad(0, 0, 0);
             $actividades = $objActividad->listar();
             echo " ------- Actividades: ----------\n";
             foreach ($actividades as $actividad) {
@@ -707,13 +734,15 @@ while (true) {
             }
             break;
         case '11':
-            $obj = new inscripcion(0, "2025-10-12", "99887766", "Cédula");
-            $objM = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            $objI = new ingresante(0, 0, 0, 0, 0, 0);
-
-             
-
+            /*
+            echo " ------- Ingresantes: ----------\n";
+            $obj = new ingresante(0, 0, 0, 0,0,0);
+            $ingresantes = $obj->listar();
+            foreach ($ingresantes as $inscripcion) {
+                echo $inscripcion . "\n";
+            }
             break;
+            */
 
         case '0':
             echo "Saliendo del programa...\n";
@@ -727,9 +756,11 @@ while (true) {
 
 
 
-//hacer todas las consultas finales 7,8, 9 Y 10
+//ver los ingresantes
 //cambiar los datos de las tablas nuevamente respetando lo de las actividades y sumando 1 a la cantidad de inscriptos
 //checkear comentarios y modificar con los params y eso
 
-
-//Buscar dado un módulo todos aquellos registros que poseen el mismo DNI y aparecen mas de una vez
+/*si te sobra tiempo:
+    Hace lo de cargar asi podes dejar constructores vacios, ademas todos se cargan con el buscar practicamente
+    ABM Ingresantes
+*/

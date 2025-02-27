@@ -256,7 +256,6 @@ class inscripcion
                         $modulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
                         $modulo->buscar($id);
                     }
-
                     array_push($modulos, $modulo);
                 }
             } else {
