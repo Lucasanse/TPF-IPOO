@@ -157,7 +157,7 @@ class modulo
     //Retorna verdadero o falso, si el módulo está completo de personas, devuelve falso. 
     public function sumarUnInscripto(){
         $res = true;
-        if($this -> estaLleno()){
+        if(!$this -> estaLleno()){
             $this -> cantidadDeInscriptos ++;
         } else {
             $res = false;

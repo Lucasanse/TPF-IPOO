@@ -186,15 +186,15 @@ class inscripcion
         } else {
             //se verifica si no está lleno el modulo
             if (!$obj_modulo->estaLleno()) {
-                $this->col_objModulo[] = $obj_modulo;
                 //se inserta el dato en la base de datos
                 //Se inserta en la tabla Inscripcion_Modulo, si no hay errores, se actualiza el precio de la inscripción 
                 $consultaInsertar = "INSERT INTO Inscripcion_Modulo (inscripcion_id, modulo_id) 
-				            VALUES (" . $this->getId() . "," . $obj_modulo->getId() . ")";
+				                     VALUES (" . $this->getId() . "," . $obj_modulo->getId() . ")";
                 if ($base->Iniciar()) {
                     if ($base->Ejecutar($consultaInsertar)) {
                         $obj_modulo->sumarUnInscripto();
                         $this->darCostoInscripcion();
+                        $this->setCol_objModulo($this->extraerModulos());
                     } else {
                         $this->setmensajeoperacion($base->getError());
                     }
@@ -217,16 +217,15 @@ class inscripcion
     {
         $res = false;
         $base = new baseDatos();
-        foreach ($this->col_objModulo as $indice => $modulo) {
+        foreach ($this->getCol_objModulo() as $modulo) {
             if ($modulo == $obj_modulo) {
                 //se elimina el elemento, se quita un cupo en el modulo y se vuelve a calcular el precio de la inscripción
-                $consultaEliminar = "DELETE FROM Inscripcion_Modulo WHERE inscripcion_id =".$this->getId()." AND modulo_id =" .$obj_modulo ->getID();
-                echo $consultaEliminar . "\n";
+                $consultaEliminar = "DELETE FROM Inscripcion_Modulo WHERE inscripcion_id =" . $this->getId() . " AND modulo_id =" . $obj_modulo->getID();
                 if ($base->Iniciar()) {
                     if ($base->Ejecutar($consultaEliminar)) {
-                        unset($this->col_objModulo[$indice]);
                         $modulo->restarUnInscripto();
                         $this->darCostoInscripcion();
+                        $this->setCol_objModulo($this->extraerModulos());
                         $res = true;
                     } else {
                         $this->setmensajeoperacion($base->getError());
@@ -245,10 +244,10 @@ class inscripcion
     public function extraerModulos()
     {
         $base = new BaseDatos();
+        $modulos = [];
         $consulta = "SELECT M.id FROM Modulo M JOIN Inscripcion_Modulo IM ON M.id = IM.modulo_id WHERE IM.inscripcion_id =" . $this->getId();
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consulta)) {
-                $modulos = array();
                 while ($row2 = $base->Registro()) {
                     $id = $row2['id'];
                     $modulo = new enLinea(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -257,6 +256,7 @@ class inscripcion
                         $modulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
                         $modulo->buscar($id);
                     }
+
                     array_push($modulos, $modulo);
                 }
             } else {
@@ -293,9 +293,11 @@ class inscripcion
     {
         $arreglo = null;
         $base = new BaseDatos();
-        $consulta = "Select * from inscripcion ";
+        
         if ($condicion != "") {
-            $consulta = $consulta . ' where ' . $condicion;
+            $consulta = $condicion;
+        } else {
+            $consulta = "Select * from inscripcion ";
         }
         $consulta .= " order by id ";
         if ($base->Iniciar()) {
@@ -373,9 +375,15 @@ class inscripcion
     {
         $base = new BaseDatos();
         $resp = false;
+        $modulos = $this->getCol_objModulo();
         if ($base->Iniciar()) {
             $consultaBorra = "DELETE FROM inscripcion WHERE id=" . $this->getID();
             if ($base->Ejecutar($consultaBorra)) {
+                //se restan inscriptos a los modulos que estaban asociados a la inscripción
+                foreach ($modulos as $modulo) {
+                    echo $this;
+                    $modulo->restarUnInscripto();
+                }
                 $resp =  true;
             } else {
                 $this->setmensajeoperacion($base->getError());
@@ -385,7 +393,6 @@ class inscripcion
         }
         return $resp;
     }
-
 
 
     public function __toString()

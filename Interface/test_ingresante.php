@@ -90,23 +90,26 @@ function altaModulo($enLinea)
 
 
 
-function altaInscripcion($id)
+function altaInscripcion()
 {
-    global $inscripciones, $ingresantes;
+    $res = false;
     echo "Ingrese el DNI de la persona que se va a inscribir ";
     $dni = trim(fgets(STDIN));
+    echo "Ingrese el Tipo de DNI de la persona que se va a inscribir ";
+    $tipoDni = trim(fgets(STDIN));
     //verificamos de que exista el estudiante y que no esté previamente inscripto
-    $obj_ingresante = buscarDNI($ingresantes, $dni);
-    if ($obj_ingresante != null && !yaEstaiInscripto($obj_ingresante)) {
+    $obj_ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+    if ($obj_ingresante->buscar($dni, $tipoDni) && !$obj_ingresante->estaInscripto()) {
         echo "Ingrese una fecha de realización: \n";
         $fecha = trim(fgets(STDIN));
-        $obj_inscripcion = new inscripcion($id, $fecha, [], $obj_ingresante);
-        //se añaden los módulos
-        añadirModuloAUnaInscripción($obj_inscripcion);
-        //añadimos la inscripcion al arreglo de inscripciones
-        array_push($inscripciones, $obj_inscripcion);
-        echo "se añadió: " . $obj_inscripcion . "\n";
-        $res = true;
+        $obj_inscripcion = new inscripcion(0, $fecha, $dni, $tipoDni);
+        //añadimos la inscripcion a la base de dtos
+        if ($obj_inscripcion->insertar()) {
+            //se añaden los módulos
+            añadirModuloAUnaInscripción($obj_inscripcion);
+            echo "se añadió: " . $obj_inscripcion . "\n";
+            $res = true;
+        }
     } else {
         echo "El ingresante no existe o ya está inscripto\n";
     }
@@ -265,6 +268,10 @@ function modificacionInscripcion($obj_inscripcion)
             echo "No es una opción válida";
             break;
     }
+    
+    if ($obj_inscripcion->modificar()) {
+        $res = true;
+    }
 
     return $res;
 }
@@ -291,20 +298,11 @@ function bajaModulo($obj_modulo)
 //funcion que da de baja una inscripción
 function bajaInscripcion($obj_inscripcion)
 {
-    global $inscripciones;
     $res = false;
-    //se busca la posición del arreglo donde esté la inscripción
-    foreach ($inscripciones as $indice => $inscripcion) {
-        if ($inscripcion == $obj_inscripcion) {
-            //se elimina el elemento
-            unset($inscripciones[$indice]);
-            // Reindexa el arreglo
-            $inscripciones = array_values($inscripciones);
-            $res = true;
-        }
+    if ($obj_inscripcion->eliminar()) {
+        $res = true;
+        echo "Se eliminó: " . $obj_inscripcion . "\n";
     }
-    echo "Se eliminó: " . $obj_inscripcion;
-
     return $res;
 }
 
@@ -365,7 +363,6 @@ function abmActividad()
 //funcion para dar de alta, baja y modificacion de modulos comunes y en linea 
 function abmModulo()
 {
-    global $modulos;
     //Variable que indica si estamos trabajando con un modulo en linea o no
     $enLinea = false;
     echo "¿Qué desea hacer?\n";
@@ -399,24 +396,23 @@ function abmModulo()
         case 4:
             echo "Ingrese el ID del modulo: ";
             $id = trim(fgets(STDIN));
-            if ($obj_modulo -> buscar($id)) {
+            if ($obj_modulo->buscar($id)) {
                 if (modificacionModulo($enLinea, $obj_modulo)) {
                     echo "Se modifico correctamente el módulo \n";
                 } else {
                     echo "No se pudo modificar el módulo.\n";
                 }
             } else {
-                if($enLinea){
+                if ($enLinea) {
                     echo " El modulo seleccionado no era un modulo en linea o";
                 }
                 echo " El modulo seleccionado no existe \n";
-                
             }
             break;
         case 5:
             echo "Ingrese el ID del modulo: ";
             $id = trim(fgets(STDIN));
-            if ($obj_modulo -> buscar($id)) {
+            if ($obj_modulo->buscar($id)) {
                 if (bajaModulo($obj_modulo)) {
                     echo "\nSe eliminó con exito\n";
                 } else {
@@ -435,7 +431,7 @@ function abmModulo()
 
 function abmAInscripcion()
 {
-    global $inscripciones;
+
     echo "¿Qué desea hacer?\n";
     echo "1. Dar de alta una inscripción \n";
     echo "2. Dar de baja una inscripción \n";
@@ -443,24 +439,20 @@ function abmAInscripcion()
     echo "0. salir\n";
     echo "Seleccione una opción: ";
     $opcion = trim(fgets(STDIN));
-    echo "Ingrese el ID de la inscripción: ";
-    $id = trim(fgets(STDIN));
-    $obj_inscripcion = buscarID($inscripciones, $id);
+    $obj_inscripcion = new inscripcion(0, 0, 0, 0);
+
     switch ($opcion) {
         case 1:
-            if ($obj_inscripcion == null) {
-                if (altaInscripcion($id)) {
-                    echo "Se añadio correctamente la inscripción\n";
-                } else {
-                    echo "No se pudo dar de alta la inscripción\n";
-                }
+            if (altaInscripcion()) {
+                echo "Se añadio correctamente la inscripción\n";
             } else {
-                echo "Ya existe una inscripción con ese ID \n";
+                echo "No se pudo dar de alta la inscripción\n";
             }
-
             break;
         case 2:
-            if ($obj_inscripcion != null) {
+            echo "Ingrese el ID de la inscripción: ";
+            $id = trim(fgets(STDIN));
+            if ($obj_inscripcion ->buscar($id)) {
                 if (bajaInscripcion($obj_inscripcion)) {
                     echo "Se eliminó correctamente la inscripción\n";
                 } else {
@@ -471,7 +463,9 @@ function abmAInscripcion()
             }
             break;
         case 3:
-            if ($obj_inscripcion != null) {
+            echo "Ingrese el ID de la inscripción: ";
+            $id = trim(fgets(STDIN));
+            if ($obj_inscripcion ->buscar($id)) {
                 if (modificacionInscripcion($obj_inscripcion)) {
                     echo "Se modifico correctamente la inscripción\n";
                 } else {
@@ -501,16 +495,6 @@ function buscarID($arreglo, $id)
     return null;
 }
 
-function buscarID2($obj, $id)
-{
-    $arreglo = $obj->listar();
-    foreach ($arreglo as $objeto) {
-        if ($objeto->getId() == $id) {
-            return $objeto;
-        }
-    }
-    return null;
-}
 
 //Funcion que dado un arreglo busca una persona teniendo en cuenta su DNI
 //En caso de no encontrarlo retorna null
@@ -528,17 +512,25 @@ function buscarDNI($arreglo, $dni)
 //funcion que muestra por pantalla todas las inscripciones correspondiente a un ID de un modulo dado por el usuario
 function inscripcionesPorModulo()
 {
-    global $modulos, $inscripciones;
-    echo " Ingresar ID del módulo: \n";
+    echo " Ingresar ID del módulo: ";
     $id = trim(fgets(STDIN));
-    $moduloElegido = buscarID($modulos, $id);
-    if ($moduloElegido != null) {
-        echo "Visualización de de incripciones realizadas al modulo con ID: " . $id . "\n";
-        foreach ($inscripciones as $inscripcion) {
-            if ($inscripcion->existeModulo($moduloElegido)) {
-                echo $inscripcion . "\n";
+    $moduloElegido = new modulo(0,0,0,0,0,0,0,0,0);
+    if ($moduloElegido ->Buscar($id)) {
+        $cadena =  "SELECT I.id, I.fecha, I.costoFinal, I.dni, I.tipoDni
+                    FROM Inscripcion I
+                    JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
+                    WHERE IM.modulo_id =". $id;
+        $inscripcion = new inscripcion(0,0,0,0);
+        $arreglo = $inscripcion -> listar($cadena);
+        if(empty($arreglo)){
+            echo "El modulo ".$id." no tiene inscripciones asociadas\n";
+        } else {
+            echo "Visualización de de incripciones realizadas al modulo con ID: " . $id . "\n";
+            foreach ($arreglo as $inscripcion) {
+                echo $inscripcion;
             }
         }
+        
     } else {
         echo "no se encontró el módulo";
     }
@@ -546,17 +538,28 @@ function inscripcionesPorModulo()
 // funcion que dada una actividad que seleccione el usuario va a devolver todas las inscripciones relacionadas a esa actvidad
 function inscripcionesPorActividad()
 {
-    global $actividades, $inscripciones;
     echo " Ingresar ID de la actividad: \n";
     $id = trim(fgets(STDIN));
-    $obj_actividad = buscarID($actividades, $id);
-    if ($obj_actividad != null) {
+    $obj_actividad = new actividad(0,0,0,0);
+    if ($obj_actividad ->Buscar($id)) {
         echo "Visualización de de incripciones realizadas con la actividad: " . $obj_actividad . "\n";
-        foreach ($inscripciones as $inscripcion) {
-            if ($inscripcion->existeActividad($obj_actividad)) {
-                echo $inscripcion . "\n";
+        $cadena = "SELECT I.id, I.fecha, I.dni, I.tipoDni
+                    FROM Inscripcion I
+                    JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
+                    JOIN Modulo M ON IM.modulo_id = M.id
+                    JOIN Actividad A ON M.actividad_id = A.id
+                    WHERE A.id = ". $id;
+        $inscripcion = new inscripcion(0,0,0,0);
+        $arreglo = $inscripcion -> listar($cadena);
+        if(empty($arreglo)){
+            echo "la actividad ".$id." no tiene inscripciones asociadas\n";
+        } else {
+            echo "Visualización de de inscripciones realizadas a la actividad con ID: " . $id . "\n";
+            foreach ($arreglo as $inscripcion) {
+                echo $inscripcion;
             }
         }
+        
     } else {
         echo "no se encontró la actividad";
     }
@@ -578,18 +581,20 @@ function yaEstaiInscripto($obj_ingresante)
 //funcion que añade un modulo a una inscripcion pasada por parametro
 function añadirModuloAUnaInscripción($obj_inscripcion)
 {
-    global $modulos;
+
     $id = 1;
+    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
     while ($id != 0) {
         echo " Ingresar ID del módulo que quieras agregar\n";
         echo " Si no queres agregar, seleccioná 0: ";
         $id = trim(fgets(STDIN));
         if ($id != 0) {
-            $moduloElegido = buscarID($modulos, $id);
-            if ($moduloElegido != null) {
+            if ($moduloElegido->buscar($id)) {
                 if ($obj_inscripcion->añadirModulo($moduloElegido)) {
                     echo "Modulo añadido\n";
                 }
+            } else {
+                echo "No existe el módulo elegido";
             }
         }
     }
@@ -597,15 +602,14 @@ function añadirModuloAUnaInscripción($obj_inscripcion)
 //funcion que elimina un modulo a una inscripcion pasada por parametro
 function eliminarModuloAUnaInscripcion($obj_inscripcion)
 {
-    global $modulos;
     $id = 1;
+    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
     while ($id != 0) {
         echo " Ingresar ID del módulo que quieras eliminar\n";
         echo " Si no queres eliminar más, seleccioná 0: ";
         $id = trim(fgets(STDIN));
         if ($id != 0) {
-            $moduloElegido = buscarID($modulos, $id);
-            if ($moduloElegido != null) {
+            if ($moduloElegido->buscar($id)) {
                 if ($obj_inscripcion->eliminarModulo($moduloElegido)) {
                     echo "Modulo eliminado\n";
                 } else {
@@ -636,60 +640,6 @@ function actividadesPorIngresantes()
     return $res;
 }
 
-/*
-// ----------- PRECARGA DE DATOS -------------
-
-// CARGA DE INGRESANTES
-$obj_ingresante1 = new ingresante(40994956, "DNI", "Lucas", "San Segundo", "FAI - 1921", "Lucas@gmail.com");
-$obj_ingresante2 = new ingresante(37930123, "DNI", "Claudia", "Maglieto", "FAI - 1122", "Claudia@gmail.com");
-$obj_ingresante3 = new ingresante(40333333, "Libreta", "Wilson", "Condori", "FAI - 2000", "Wilson@gmail.com");
-$obj_ingresante4 = new ingresante(12345678, "DNI", "Carmen", "Gonzalez", "FAI - 2332", "Carmen@gmail.com");
-array_push($ingresantes, $obj_ingresante1, $obj_ingresante2, $obj_ingresante3, $obj_ingresante4);
-
-
-// CARGA DE ACTIVIDADES
-
-$obj_actividad1 = new actividad(0,"Curso matemáticas", "Descripción larga");
-$obj_actividad2 = new actividad(0,"Taller de robótica", "Descripción larga");
-$obj_actividad3 = new actividad(0,"Charla de liderazgo", "Descripción larga");
-$obj_actividad4 = new actividad(0,"Curso de álgebra", "Descripción larga");
-array_push($actividades, $obj_actividad1, $obj_actividad2, $obj_actividad3, $obj_actividad4);
-
-
-// CARGA DE MODULOS
-
-$obj_modulo1 = new modulo(0,"Matematica", "10:30", "13:00", "01/05/2025", "01/08/2025", 4, 1200, $obj_actividad1);
-$obj_modulo2 = new modulo(0,"Robotica", "11:30", "14:30", "01/05/2025", "01/08/2025", 20, 1200, $obj_actividad2);
-$obj_modulo3 = new modulo(0,"Lideres", "12:30", "17:10", "01/05/2025", "01/08/2025", 1, 1200, $obj_actividad3);
-
-
-// CARGA DE MODULOS EN LINEA 
-
-$obj_enLinea1 = new enLinea(4, "Matematica en linea", "10:30", "13:00", "01/05/2025", "01/08/2025", 20, 1200, $obj_actividad1, "www.google.com", 20);
-$obj_enLinea2 = new enLinea(5, "Robotica en linea", "13:30", "15:00", "03/05/2025", "03/08/2025", 20, 1200, $obj_actividad2, "www.google.com", 20);
-
-//CREACION DE ARREGLOS DE MODULOS 
-array_push($modulos, $obj_enLinea1, $obj_enLinea2, $obj_modulo1, $obj_modulo2, $obj_modulo3);
-
-
-// CARGA DE INSCRIPCIONES 
-
-$obj_inscripcion1 = new inscripcion(1, "01/03/25", [], $obj_ingresante1);
-$obj_inscripcion1->añadirModulo($obj_enLinea1);
-$obj_inscripcion1->añadirModulo($obj_modulo2);
-
-$obj_inscripcion2 = new inscripcion(2, "02/03/25", [], $obj_ingresante2);
-$obj_inscripcion2->añadirModulo($obj_enLinea2);
-$obj_inscripcion2->añadirModulo($obj_modulo1);
-
-$obj_inscripcion3 = new inscripcion(3, "03/03/25", [], $obj_ingresante3);
-$obj_inscripcion3->añadirModulo($obj_modulo1);
-$obj_inscripcion3->añadirModulo($obj_modulo2);
-$obj_inscripcion3->añadirModulo($obj_modulo3);
-
-//arreglo de inscripciones
-array_push($inscripciones, $obj_inscripcion1, $obj_inscripcion2, $obj_inscripcion3);
-*/
 
 
 // ------------------------ MENU PRINCIPAL ------------------------------
@@ -716,8 +666,8 @@ while (true) {
             break;
         case '4':
             echo " ------- Inscripciones: ----------\n";
-            $obj = new inscripcion(0,0,0,0);
-            $inscripciones = $obj -> listar();
+            $obj = new inscripcion(0, 0, 0, 0);
+            $inscripciones = $obj->listar();
             foreach ($inscripciones as $inscripcion) {
                 echo $inscripcion . "\n";
             }
@@ -750,27 +700,18 @@ while (true) {
             break;
         case '10':
             echo " ------- Modulos: ----------\n";
-            $objModulo = new modulo(0,0,0,0,0,0,0,0,0);
-            $modulos = $objModulo ->listar();
+            $objModulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            $modulos = $objModulo->listar();
             foreach ($modulos as $modulo) {
                 echo $modulo . "\n";
             }
             break;
         case '11':
-            $obj = new inscripcion(0,"2025-10-12","99887766","Cédula");
-            $objM = new modulo(0,0,0,0,0,0,0,0,0);
-            
-            if ($obj -> buscar(4)) {
-                $objM -> buscar(5);
-                if($obj->eliminarModulo($objM)){
-                    echo "si";
-                } else {
-                    echo "no";
-                }
-               
-            } else {
-                echo "NO";
-            }
+            $obj = new inscripcion(0, "2025-10-12", "99887766", "Cédula");
+            $objM = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            $objI = new ingresante(0, 0, 0, 0, 0, 0);
+
+             
 
             break;
 
@@ -784,11 +725,9 @@ while (true) {
 }
 
 
-//verificar si existe inscripto
-//checkear de que no esté inscripto
-//extraerActividades (extraerObjetoActividad en la clase modulo)
-//terminar abm inscripciones
-//hacer todas las consultas finales 
+
+
+//hacer todas las consultas finales 7,8, 9 Y 10
 //checkear comentarios y modificar con los params y eso
 
 

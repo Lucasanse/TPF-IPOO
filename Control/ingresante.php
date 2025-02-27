@@ -9,6 +9,7 @@ class ingresante
     private $apellido;
     private $legajo;
     private $correo;
+    private $mensajeoperacion;
 
     //Constructor
     public function __construct($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo)
@@ -46,6 +47,10 @@ class ingresante
     {
         $this->correo = $correo;
     }
+    public function setmensajeoperacion($mensajeoperacion)
+    {
+        $this->mensajeoperacion = $mensajeoperacion;
+    }
 
     // Funciones GET
     public function getDni()
@@ -72,13 +77,62 @@ class ingresante
     {
         return $this->correo;
     }
+    public function getMensajeoperacion()
+    {
+        return $this->mensajeoperacion;
+    }
+    public function Buscar($dni, $tipoDni)
+    {
+        $base = new BaseDatos();
+        $consulta = "SELECT * from ingresante where dni='" . $dni . "' AND tipoDni='" . $tipoDni . "'";
+        $resp = false;
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                if ($row2 = $base->Registro()) {
+                    $this->setdni($dni);
+                    $this->setTipoDNI($tipoDni);
+                    $this->setNombre($row2['nombre']);
+                    $this->setApellido($row2['apellido']);
+                    $this->setLegajo($row2['legajo']);
+                    $this->setCorreo($row2['correo']);
+                    $resp = true;
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+    public function estaInscripto()
+    {
+        $base = new BaseDatos();
+        $consulta = "SELECT COUNT(*) AS total FROM Inscripcion  where dni='" . $this->getDni() . "' AND tipoDni='" . $this->getTipoDNI() . "'";
+        $resp = false;
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                if ($row2 = $base->Registro()) {
+                    if($row2['total']>0){
+                        $resp = true;
+                    }
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
 
     //función to string para visualizar los datos del ingresante
 
     public function __toString()
     {
         $cadena = "\n"
-            ."DATO DEL INGRESANTE: " . $this->getNombre()
+            . "DATO DEL INGRESANTE: " . $this->getNombre()
             . " " . $this->getApellido()
             . " | " . $this->getTipoDNI()
             . " " . $this->getDni()
