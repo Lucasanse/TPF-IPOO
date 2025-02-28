@@ -12,14 +12,24 @@ class ingresante
     private $mensajeoperacion;
 
     //Constructor
-    public function __construct($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo)
+    public function __construct()
     {
+        $this->dni = "";
+        $this->tipoDNI = "";
+        $this->nombre = "";
+        $this->apellido = "";
+        $this->legajo = "";
+        $this->correo = "";
+    }
+
+    public function cargar ($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo){
         $this->dni = $dni;
         $this->tipoDNI = $tipoDNI;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
         $this->legajo = $legajo;
         $this->correo = $correo;
+
     }
 
     // Funciones SET 
@@ -81,6 +91,42 @@ class ingresante
     {
         return $this->mensajeoperacion;
     }
+
+    public function listar($condicion = "")
+    {
+        $arreglo = null;
+        $base = new BaseDatos();
+        
+        if ($condicion != "") {
+            $consulta = $condicion;
+        } else {
+            $consulta = "Select * from ingresante ";
+        }
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                $arreglo = array();
+                while ($row2 = $base->Registro()) {
+                    $dni =($row2['dni']);
+                    $tipoDNI= ($row2['tipoDni']);
+                    $nombre=($row2['nombre']);
+                    $apellido= ($row2['apellido']);
+                    $legajo= ($row2['legajo']);
+                    $correo= ($row2['correo']);
+
+                    $ingresante = new ingresante();
+                    $ingresante-> cargar ($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo);
+                    array_push($arreglo, $ingresante);
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $arreglo;
+    }
+
+
     public function Buscar($dni, $tipoDni)
     {
         $base = new BaseDatos();

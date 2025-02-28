@@ -11,8 +11,15 @@ class actividad
     private $mensajeoperacion;
 
     //Constructor
-    public function __construct($id, $descC, $descL)
+    public function __construct()
     {
+        $this->id = "";
+        $this->descC = "";
+        $this->descL = "";
+    }
+
+    //constructor para cargar datos
+    public function cargar($id, $descC, $descL){
         $this->id = $id;
         $this->descC = $descC;
         $this->descL = $descL;
@@ -128,7 +135,8 @@ class actividad
 					$descripcionCorta=$row2['descripcionCorta'];
 					$descripcionLarga=$row2['descripcionLarga'];
 				
-					$actividad=new actividad($id, $descripcionCorta, $descripcionLarga);
+					$actividad=new actividad();
+                    $actividad -> cargar($id, $descripcionCorta, $descripcionLarga);
 					array_push($arreglo,$actividad);
 	
 				}

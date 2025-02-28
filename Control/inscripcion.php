@@ -15,8 +15,21 @@ class inscripcion
     private $col_objModulo;
 
     //constructor 
-    public function __construct($id, $fecha, $dniIngresante, $tipoDNI)
+    public function __construct()
     {
+        $this->id = 0;
+        $this->fecha = "";
+        $this->dniIngresante = "";
+        $this->tipoDNI = "";
+        $this->col_objModulo = $this->extraerModulos();
+        if ($this->col_objModulo == null) {
+            $this->costoFinal = 0;
+        } else {
+            $this->costoFinal = $this->darCostoInscripcion();
+        }
+    }
+
+    public function cargar($id, $fecha, $dniIngresante, $tipoDNI){
         $this->id = $id;
         $this->fecha = $fecha;
         $this->dniIngresante = $dniIngresante;
@@ -193,8 +206,8 @@ class inscripcion
                 if ($base->Iniciar()) {
                     if ($base->Ejecutar($consultaInsertar)) {
                         $obj_modulo->sumarUnInscripto();
-                        $this->darCostoInscripcion();
                         $this->setCol_objModulo($this->extraerModulos());
+                        $this->darCostoInscripcion();
                     } else {
                         $this->setmensajeoperacion($base->getError());
                     }
@@ -250,10 +263,10 @@ class inscripcion
             if ($base->Ejecutar($consulta)) {
                 while ($row2 = $base->Registro()) {
                     $id = $row2['id'];
-                    $modulo = new enLinea(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                    $modulo = new enLinea();
                     //si el modulo no está en linea 
                     if (!$modulo->buscar($id)) {
-                        $modulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                        $modulo = new modulo();
                         $modulo->buscar($id);
                     }
                     array_push($modulos, $modulo);
@@ -308,7 +321,8 @@ class inscripcion
                     $dni = $row2['dni'];
                     $tipodni = $row2['tipoDni'];
 
-                    $inscripcion = new inscripcion($id, $fecha, $dni, $tipodni);
+                    $inscripcion = new inscripcion();
+                    $inscripcion -> cargar($id, $fecha, $dni, $tipodni);
                     array_push($arreglo, $inscripcion);
                 }
             } else {

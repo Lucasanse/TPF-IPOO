@@ -33,16 +33,15 @@ function menu()
 //alta de una actividad, da como respuesta un booleano. Si es falso, es porque ya existe el ID. 
 function altaActividad()
 {
-    global $actividades;
+    
     $res = false;
     echo "Ingrese una descripción corta para la actividad:\n";
     $descC = trim(fgets(STDIN));
     echo "Ingrese una descripción larga para la actividad:\n";
     $descL = trim(fgets(STDIN));
-    $obj_actividad = new actividad(0, $descC, $descL);
+    $obj_actividad = new actividad();
+    $obj_actividad -> cargar(0,$descC,$descL);
     $obj_actividad->insertar();
-    //se agrega la actividad al arreglo de actividades
-    array_push($actividades, $obj_actividad);
     echo "Se añadió : \n" . $obj_actividad . "\n";
     $res = true;
 
@@ -55,7 +54,7 @@ function altaModulo($enLinea)
     $res = false;
     echo "Ingrese el ID de la actividad correspondiente al módulo: ";
     $idActividad = trim(fgets(STDIN));
-    $obj_actividad = new actividad(0, "", "");
+    $obj_actividad = new actividad();
     if ($obj_actividad->Buscar($idActividad)) {
         echo "Ingrese una descripción para el módulo: \n";
         $descM = trim(fgets(STDIN));
@@ -76,10 +75,12 @@ function altaModulo($enLinea)
             $link = trim(fgets(STDIN));
             echo "Ingrese el % de bonificación \n";
             $bonificacion = trim(fgets(STDIN));
-            $obj_modulo = new enLinea(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad, $link, $bonificacion);
+            $obj_modulo = new enLinea();
+            $obj_modulo ->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad, $link, $bonificacion);
             $obj_modulo->insertar();
         } else {
-            $obj_modulo = new modulo(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad);
+            $obj_modulo = new modulo();
+            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad);
             $obj_modulo->insertar();
         }
         echo "Se añadió con exito: " . $obj_modulo . "\n";
@@ -100,11 +101,12 @@ function altaInscripcion()
     echo "Ingrese el Tipo de DNI de la persona que se va a inscribir ";
     $tipoDni = trim(fgets(STDIN));
     //verificamos de que exista el estudiante y que no esté previamente inscripto
-    $obj_ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+    $obj_ingresante = new ingresante();
     if ($obj_ingresante->buscar($dni, $tipoDni) && !$obj_ingresante->estaInscripto()) {
         echo "Ingrese una fecha de realización: \n";
         $fecha = trim(fgets(STDIN));
-        $obj_inscripcion = new inscripcion(0, $fecha, $dni, $tipoDni);
+        $obj_inscripcion = new inscripcion();
+        $obj_inscripcion -> cargar(0, $fecha, $dni, $tipoDni);
         //añadimos la inscripcion a la base de dtos
         if ($obj_inscripcion->insertar()) {
             //se añaden los módulos
@@ -330,7 +332,7 @@ function abmActividad()
             echo "Ingrese el ID de la actividad: ";
             $id = trim(fgets(STDIN));
             //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver falso
-            $obj_actividad = new actividad(0, "", "");
+            $obj_actividad = new actividad();
             if ($obj_actividad->Buscar($id)) {
                 if (bajaActividad($obj_actividad)) {
                     echo "Se eliminó correctamente la actividad \n";
@@ -345,7 +347,7 @@ function abmActividad()
             echo "Ingrese el ID de la actividad: ";
             $id = trim(fgets(STDIN));
             //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver falso
-            $obj_actividad = new actividad(0, "", "");
+            $obj_actividad = new actividad();
             if ($obj_actividad->Buscar($id)) {
                 if (modificacionActividad($obj_actividad)) {
                     echo "Se modifico correctamente la actividad\n";
@@ -381,9 +383,9 @@ function abmModulo()
     }
     //Busca ID por la funcion buscar ID, si no lo encuentra va a devolver null (si es null, es que no existe)
     if ($enLinea) {
-        $obj_modulo = new enLinea(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        $obj_modulo = new enLinea();
     } else {
-        $obj_modulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+        $obj_modulo = new modulo();
     }
     switch ($opcion) {
         case 1:
@@ -441,7 +443,7 @@ function abmAInscripcion()
     echo "0. salir\n";
     echo "Seleccione una opción: ";
     $opcion = trim(fgets(STDIN));
-    $obj_inscripcion = new inscripcion(0, 0, 0, 0);
+    $obj_inscripcion = new inscripcion();
 
     switch ($opcion) {
         case 1:
@@ -516,13 +518,13 @@ function inscripcionesPorModulo()
 {
     echo " Ingresar ID del módulo: ";
     $id = trim(fgets(STDIN));
-    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    $moduloElegido = new modulo();
     if ($moduloElegido->Buscar($id)) {
         $cadena =  "SELECT I.id, I.fecha, I.costoFinal, I.dni, I.tipoDni
                     FROM Inscripcion I
                     JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
                     WHERE IM.modulo_id =" . $id;
-        $inscripcion = new inscripcion(0, 0, 0, 0);
+        $inscripcion = new inscripcion();
         $arreglo = $inscripcion->listar($cadena);
         if (empty($arreglo)) {
             echo "El modulo " . $id . " no tiene inscripciones asociadas\n";
@@ -541,7 +543,7 @@ function inscripcionesPorActividad()
 {
     echo " Ingresar ID de la actividad: \n";
     $id = trim(fgets(STDIN));
-    $obj_actividad = new actividad(0, 0, 0, 0);
+    $obj_actividad = new actividad();
     if ($obj_actividad->Buscar($id)) {
         echo "Visualización de de incripciones realizadas con la actividad: " . $obj_actividad . "\n";
         $cadena = "SELECT I.id, I.fecha, I.dni, I.tipoDni
@@ -550,7 +552,7 @@ function inscripcionesPorActividad()
                     JOIN Modulo M ON IM.modulo_id = M.id
                     JOIN Actividad A ON M.actividad_id = A.id
                     WHERE A.id = " . $id;
-        $inscripcion = new inscripcion(0, 0, 0, 0);
+        $inscripcion = new inscripcion();
         $arreglo = $inscripcion->listar($cadena);
         if (empty($arreglo)) {
             echo "la actividad " . $id . " no tiene inscripciones asociadas\n";
@@ -570,21 +572,20 @@ function inscripcionesPorDNIyModulo()
 {
     echo " Ingresar ID del módulo: ";
     $id = trim(fgets(STDIN));
-    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    $moduloElegido = new modulo();
     if ($moduloElegido->Buscar($id)) {
         echo " Ingresar DNI del inscripto: ";
         $dni = trim(fgets(STDIN));
         echo " Ingresar tipo de DNI del inscripto: ";
         $tipodni = trim(fgets(STDIN));
-        $ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+        $ingresante = new ingresante();
         if ($ingresante->buscar($dni, $tipodni)) {
             $cadena =  "SELECT I.id, I.fecha, I.costoFinal, I.dni, I.tipoDni
                         FROM Inscripcion I
                         JOIN Inscripcion_Modulo IM ON I.id = IM.inscripcion_id
                         JOIN Ingresante Ing ON I.dni = Ing.dni AND I.tipoDni = Ing.tipoDni
                         WHERE IM.modulo_id =" . $id . " AND I.dni = '" . $dni . "' AND I.tipoDni = '" . $tipodni . "'";
-            $inscripcion = new inscripcion(0, 0, 0, 0);
-            echo $cadena . "\n";
+            $inscripcion = new inscripcion();
             $arreglo = $inscripcion->listar($cadena);
             if (empty($arreglo)) {
                 echo "El modulo " . $id . " no tiene inscripciones asociadas\n";
@@ -607,7 +608,7 @@ function añadirModuloAUnaInscripción($obj_inscripcion)
 {
 
     $id = 1;
-    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    $moduloElegido = new modulo();
     while ($id != 0) {
         echo " Ingresar ID del módulo que quieras agregar\n";
         echo " Si no queres agregar, seleccioná 0: ";
@@ -627,20 +628,28 @@ function añadirModuloAUnaInscripción($obj_inscripcion)
 function eliminarModuloAUnaInscripcion($obj_inscripcion)
 {
     $id = 1;
-    $moduloElegido = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    
     while ($id != 0) {
         echo " Ingresar ID del módulo que quieras eliminar\n";
         echo " Si no queres eliminar más, seleccioná 0: ";
         $id = trim(fgets(STDIN));
         if ($id != 0) {
+            $moduloElegido = new modulo();
+            $moduloEnLinea = new enLinea();
+            if ($moduloEnLinea -> Buscar($id)){
+                $moduloElegido = $moduloEnLinea;
+            }
             if ($moduloElegido->buscar($id)) {
                 if ($obj_inscripcion->eliminarModulo($moduloElegido)) {
                     echo "Modulo eliminado\n";
-                } else {
-                    echo "No se pudo eliminar el módulo porque no está\n";
+                } 
+                else {
+                    echo "No se pudo eliminar el módulo\n";
                 }
-            }
+        } else {
+            echo "No se pudo eliminar el módulo porque no existe\n";
         }
+    }
     }
 }
 //funcion que al buscar un ingresante (tipo y DNI), devuelve todas las actividades en las que está inscripto
@@ -650,7 +659,7 @@ function actividadesPorIngresantes()
     $dni = trim(fgets(STDIN));
     echo " Ingresar tipo DNI del ingresante \n";
     $tipoDni = trim(fgets(STDIN));
-    $ingresante = new ingresante(0, 0, 0, 0, 0, 0);
+    $ingresante = new ingresante();
     if ($ingresante->Buscar($dni, $tipoDni)) {
         $cadena = "SELECT A.id, A.descripcionCorta, A.descripcionLarga
                     FROM Inscripcion I
@@ -658,7 +667,7 @@ function actividadesPorIngresantes()
                     JOIN Modulo M ON IM.modulo_id = M.id
                     JOIN Actividad A ON M.actividad_id = A.id
                     WHERE I.dni = '" . $dni . "' AND I.tipoDni = '" . $tipoDni . "'";
-        $actividad = new actividad(0, 0, 0, 0);
+        $actividad = new actividad();
         $arreglo = $actividad->listar($cadena);
         if (empty($arreglo)) {
             echo "El ingresante: " . $dni . " " . $tipoDni . " no tiene actividades asociadas\n";
@@ -699,7 +708,7 @@ while (true) {
             break;
         case '4':
             echo " ------- Inscripciones: ----------\n";
-            $obj = new inscripcion(0, 0, 0, 0);
+            $obj = new inscripcion();
             $inscripciones = $obj->listar();
             foreach ($inscripciones as $inscripcion) {
                 echo $inscripcion . "\n";
@@ -718,7 +727,7 @@ while (true) {
             actividadesPorIngresantes();
             break;
         case '9':
-            $objActividad = new actividad(0, 0, 0);
+            $objActividad = new actividad();
             $actividades = $objActividad->listar();
             echo " ------- Actividades: ----------\n";
             foreach ($actividades as $actividad) {
@@ -727,22 +736,22 @@ while (true) {
             break;
         case '10':
             echo " ------- Modulos: ----------\n";
-            $objModulo = new modulo(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            $objModulo = new modulo();
             $modulos = $objModulo->listar();
             foreach ($modulos as $modulo) {
                 echo $modulo . "\n";
             }
             break;
         case '11':
-            /*
+            
             echo " ------- Ingresantes: ----------\n";
-            $obj = new ingresante(0, 0, 0, 0,0,0);
+            $obj = new ingresante();
             $ingresantes = $obj->listar();
             foreach ($ingresantes as $inscripcion) {
                 echo $inscripcion . "\n";
             }
             break;
-            */
+        
 
         case '0':
             echo "Saliendo del programa...\n";
@@ -756,11 +765,6 @@ while (true) {
 
 
 
-//ver los ingresantes
-//cambiar los datos de las tablas nuevamente respetando lo de las actividades y sumando 1 a la cantidad de inscriptos
+//AGREGAR MODULOS A LAS INSCRIPCIONES
 //checkear comentarios y modificar con los params y eso
 
-/*si te sobra tiempo:
-    Hace lo de cargar asi podes dejar constructores vacios, ademas todos se cargan con el buscar practicamente
-    ABM Ingresantes
-*/

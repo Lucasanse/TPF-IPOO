@@ -7,11 +7,18 @@ class enLinea extends modulo
     
 
     // Constructor
-    public function __construct($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad, $linkLlamada, $bonificacion)
+    public function __construct()
     {
-        parent::__construct($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad);
+        parent::__construct();
+        $this->linkLlamada = "";
+        $this->bonificacion = 0;
+    }
+
+    public function cargar ($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad, $linkLlamada = null, $bonificacion = null){
+        parent::cargar($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad);
         $this->linkLlamada = $linkLlamada;
         $this->bonificacion = $bonificacion;
+
     }
 
     // Getter y Setter para linkLlamada

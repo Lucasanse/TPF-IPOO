@@ -18,8 +18,21 @@ class modulo
     private $mensajeoperacion;
 
     // Constructor
-    public function __construct($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $idActividad)
+    public function __construct()
     {
+        $this->id = 0;
+        $this->descripcion = "";
+        $this->horarioInicio = "";
+        $this->horarioCierre = "";
+        $this->fechaInicio = "";
+        $this->fechaFin = "";
+        $this->topeInscripciones = "";
+        $this->costo = "";
+        $this->idActividad = "";
+        $this->cantidadDeInscriptos = 0;
+    }
+
+    public function cargar ($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $idActividad){
         $this->id = $id;
         $this->descripcion = $descripcion;
         $this->horarioInicio = $horarioInicio;
@@ -30,6 +43,7 @@ class modulo
         $this->costo = $costo;
         $this->idActividad = $idActividad;
         $this->cantidadDeInscriptos = 0;
+
     }
 
 
@@ -290,7 +304,8 @@ class modulo
                     $cantInscriptos = $row2['cantidadDeInscriptos'];
                     $idAct = $row2['actividad_id'];
 				
-					$modulo=new modulo($id, $desc,$hi, $hc, $fi, $ff, $topeI, $costo, $idAct);
+					$modulo=new modulo();
+                    $modulo ->cargar($id, $desc,$hi, $hc, $fi, $ff, $topeI, $costo, $idAct);
                     $modulo -> setCantidadInscriptos($cantInscriptos);
 					array_push($arreglo,$modulo);
 	
