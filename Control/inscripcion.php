@@ -37,6 +37,7 @@ class inscripcion
         $this->col_objModulo = $this->extraerModulos();
         if ($this->col_objModulo == null) {
             $this->costoFinal = 0;
+            $this -> modificar();
         } else {
             $this->costoFinal = $this->darCostoInscripcion();
         }

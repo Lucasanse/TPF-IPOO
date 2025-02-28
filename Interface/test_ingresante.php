@@ -765,6 +765,7 @@ while (true) {
 
 
 
+//volve a chekcear los constructores
 //AGREGAR MODULOS A LAS INSCRIPCIONES
 //checkear comentarios y modificar con los params y eso
 
