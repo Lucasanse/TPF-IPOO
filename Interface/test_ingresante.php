@@ -26,6 +26,7 @@ function menu()
     echo "9. Visualizar las actividades \n";
     echo "10. Visualizar los modulos \n";
     echo "11. Visualizar los ingresantes \n";
+    echo "12. ABM Ingresantes \n";
     echo "0. Terminar programa\n";
     echo "Seleccione una opción: ";
 }
@@ -33,17 +34,18 @@ function menu()
 //alta de una actividad, da como respuesta un booleano. Si es falso, es porque ya existe el ID. 
 function altaActividad()
 {
-    
+
     $res = false;
     echo "Ingrese una descripción corta para la actividad:\n";
     $descC = trim(fgets(STDIN));
     echo "Ingrese una descripción larga para la actividad:\n";
     $descL = trim(fgets(STDIN));
     $obj_actividad = new actividad();
-    $obj_actividad -> cargar(0,$descC,$descL);
-    $obj_actividad->insertar();
-    echo "Se añadió : \n" . $obj_actividad . "\n";
-    $res = true;
+    $obj_actividad->cargar(0, $descC, $descL);
+    if ($obj_actividad->insertar()) {
+        echo "Se añadió : \n" . $obj_actividad . "\n";
+        $res = true;
+    }
 
     return $res;
 }
@@ -76,7 +78,7 @@ function altaModulo($enLinea)
             echo "Ingrese el % de bonificación \n";
             $bonificacion = trim(fgets(STDIN));
             $obj_modulo = new enLinea();
-            $obj_modulo ->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad, $link, $bonificacion);
+            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad, $link, $bonificacion);
             $obj_modulo->insertar();
         } else {
             $obj_modulo = new modulo();
@@ -106,7 +108,7 @@ function altaInscripcion()
         echo "Ingrese una fecha de realización: \n";
         $fecha = trim(fgets(STDIN));
         $obj_inscripcion = new inscripcion();
-        $obj_inscripcion -> cargar(0, $fecha, $dni, $tipoDni);
+        $obj_inscripcion->cargar(0, $fecha, $dni, $tipoDni);
         //añadimos la inscripcion a la base de dtos
         if ($obj_inscripcion->insertar()) {
             //se añaden los módulos
@@ -117,6 +119,29 @@ function altaInscripcion()
     } else {
         echo "El ingresante no existe o ya está inscripto\n";
     }
+    return $res;
+}
+
+
+function altaIngresante($dni, $tipoDni)
+{
+
+    $res = false;
+    echo "Ingrese el nombre del ingresante:\n";
+    $nom = trim(fgets(STDIN));
+    echo "Ingrese el apellido del ingresante:\n";
+    $ape = trim(fgets(STDIN));
+    echo "Ingrese el legajo del ingresante:\n";
+    $leg = trim(fgets(STDIN));
+    echo "Ingrese el correo del ingresante:\n";
+    $correo = trim(fgets(STDIN));
+    $ingresante = new ingresante();
+    $ingresante->cargar($dni, $tipoDni, $nom, $ape, $leg, $correo);
+    if ($ingresante->insertar()) {
+        echo "Se añadió : \n" . $ingresante . "\n";
+        $res = true;
+    }
+
     return $res;
 }
 
@@ -279,6 +304,49 @@ function modificacionInscripcion($obj_inscripcion)
 
     return $res;
 }
+
+function modificacionIngresante($ingresante)
+{
+    $res = false;
+    echo "¿Que desea modificar del ingresante: " . $ingresante->getDni() . "?\n";
+    echo "1. Nombre \n";
+    echo "2. Apellido\n";
+    echo "3. Legajo \n";
+    echo "4. Correo\n";
+    echo "0. salir\n";
+    echo "Seleccione una opción: ";
+    $opcion = trim(fgets(STDIN));
+    switch ($opcion) {
+        case 1:
+            echo "Ingrese el nuevo nombre: \n";
+            $dato = trim(fgets(STDIN));
+            $ingresante->setNombre($dato);
+            break;
+        case 2:
+            echo "Ingrese el nuevo apellido: \n";
+            $dato = trim(fgets(STDIN));
+            $ingresante->setApellido($dato);
+            break;
+        case 3:
+            echo "Ingrese el nuevo Legajo: \n";
+            $dato = trim(fgets(STDIN));
+            $ingresante->setLegajo($dato);
+            break;
+        case 4:
+            echo "Ingrese el nuevo correo: \n";
+            $dato = trim(fgets(STDIN));
+            $ingresante->setCorreo($dato);
+            break;
+
+        default:
+            break;
+    }
+    $res = $ingresante->modificar();
+    return $res;
+}
+
+
+
 //funcion que da de baja una actividad
 //como un modulo requiere de una actividad, si se elimina una actividad se eliminan los modulos que estén asociadas a ellas
 function bajaActividad($obj_actividad)
@@ -306,6 +374,17 @@ function bajaInscripcion($obj_inscripcion)
     if ($obj_inscripcion->eliminar()) {
         $res = true;
         echo "Se eliminó: " . $obj_inscripcion . "\n";
+    }
+    return $res;
+}
+
+//funcion que da de baja un ingresante
+function bajaIngresante($obj_ingresante)
+{
+    $res = false;
+    if ($obj_ingresante->eliminar()) {
+        $res = true;
+        echo "Se eliminó: " . $obj_ingresante . "\n";
     }
     return $res;
 }
@@ -486,31 +565,64 @@ function abmAInscripcion()
     }
 }
 
-//Funcion que dado un arreglo y un ID retorna el objeto con ese ID
-//En caso de no encontrarlo retorna null
-//Las clases que funcionan con buscar ID: actividad, en_linea, inscripcion y modulo 
-function buscarID($arreglo, $id)
+function abmIngresante()
 {
-    foreach ($arreglo as $objeto) {
-        if ($objeto->getId() == $id) {
-            return $objeto;
-        }
+    echo "¿Qué desea hacer?\n";
+    echo "1. Dar de alta un ingresante \n";
+    echo "2. Dar de baja un ingresante \n";
+    echo "3. Modificar un ingresante  \n";
+    echo "0. salir\n";
+    echo "Seleccione una opción: ";
+    $opcion = trim(fgets(STDIN));
+    if($opcion >= 1 && $opcion <=3){
+        echo "Ingrese el DNI del ingresante: ";
+        $dni = trim(fgets(STDIN));
+        echo "Ingrese el tipo de DNI del ingresante: ";
+        $tipoDni = trim(fgets(STDIN));
+        $obj_ingresante = new ingresante();
+        $existeIngresante = $obj_ingresante->buscar($dni, $tipoDni);
     }
-    return null;
-}
+   
+    switch ($opcion) {
+        case 1:
+            if (!$existeIngresante) {
+                if (altaIngresante($dni, $tipoDni)) {
+                    echo "Se añadio correctamente el ingresante: ".$tipoDni. " ". $dni ." \n";
+                } else {
+                    echo "No se añadió correctamente el ingresante\n";
+                }
+            } else {
+                echo "Ya existe ingresante con ese dni y ese tipo de DNI";
+            }
 
-
-//Funcion que dado un arreglo busca una persona teniendo en cuenta su DNI
-//En caso de no encontrarlo retorna null
-//Las clases que funcionan con buscar DNI: ingresante
-function buscarDNI($arreglo, $dni)
-{
-    foreach ($arreglo as $objeto) {
-        if ($objeto->getDni() == $dni) {
-            return $objeto;
-        }
+            break;
+        case 2:
+            if ($existeIngresante) {
+                if (bajaActividad($obj_ingresante)) {
+                    echo "Se eliminó correctamente el ingresante: ".$obj_ingresante."\n";
+                } else {
+                    echo "No se eliminó correctamente el ingresante\n";
+                }
+            } else {
+                echo "No se encuentra DNI Y TIPO  del ingresante\n";
+            };
+            break;
+        case 3:
+            if ($existeIngresante) {
+                if (modificacionIngresante($obj_ingresante)) {
+                    echo "Se modifico correctamente el ingresante: ".$obj_ingresante."\n";
+                } else {
+                    echo "No se pudo modificar el ingresante";
+                }
+            } else {
+                echo "No se encuentra DNI y tipo del ingresante\n";
+            };
+            break;
+        case 0:
+            break;
+        default:
+            echo "No existe esa opción";
     }
-    return null;
 }
 
 //funcion que muestra por pantalla todas las inscripciones correspondiente a un ID de un modulo dado por el usuario
@@ -628,7 +740,7 @@ function añadirModuloAUnaInscripción($obj_inscripcion)
 function eliminarModuloAUnaInscripcion($obj_inscripcion)
 {
     $id = 1;
-    
+
     while ($id != 0) {
         echo " Ingresar ID del módulo que quieras eliminar\n";
         echo " Si no queres eliminar más, seleccioná 0: ";
@@ -636,20 +748,19 @@ function eliminarModuloAUnaInscripcion($obj_inscripcion)
         if ($id != 0) {
             $moduloElegido = new modulo();
             $moduloEnLinea = new enLinea();
-            if ($moduloEnLinea -> Buscar($id)){
+            if ($moduloEnLinea->Buscar($id)) {
                 $moduloElegido = $moduloEnLinea;
             }
             if ($moduloElegido->buscar($id)) {
                 if ($obj_inscripcion->eliminarModulo($moduloElegido)) {
                     echo "Modulo eliminado\n";
-                } 
-                else {
+                } else {
                     echo "No se pudo eliminar el módulo\n";
                 }
-        } else {
-            echo "No se pudo eliminar el módulo porque no existe\n";
+            } else {
+                echo "No se pudo eliminar el módulo porque no existe\n";
+            }
         }
-    }
     }
 }
 //funcion que al buscar un ingresante (tipo y DNI), devuelve todas las actividades en las que está inscripto
@@ -737,13 +848,21 @@ while (true) {
         case '10':
             echo " ------- Modulos: ----------\n";
             $objModulo = new modulo();
+            $objEnLinea = new enLinea();
             $modulos = $objModulo->listar();
             foreach ($modulos as $modulo) {
-                echo $modulo . "\n";
+                $id = $modulo->getId();
+                if ($id != null){
+                    if($objEnLinea->Buscar($id)){
+                        echo $objEnLinea. "\n";
+                    } else {
+                        echo $modulo . "\n";
+                    }
+                }      
             }
             break;
         case '11':
-            
+
             echo " ------- Ingresantes: ----------\n";
             $obj = new ingresante();
             $ingresantes = $obj->listar();
@@ -751,7 +870,9 @@ while (true) {
                 echo $inscripcion . "\n";
             }
             break;
-        
+        case '12':
+            abmIngresante();
+            break;
 
         case '0':
             echo "Saliendo del programa...\n";
@@ -764,8 +885,6 @@ while (true) {
 
 
 
-
-//volve a chekcear los constructores
 //AGREGAR MODULOS A LAS INSCRIPCIONES
 //checkear comentarios y modificar con los params y eso
-
+//guarda la nueva base de datos

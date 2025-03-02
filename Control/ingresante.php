@@ -173,6 +173,66 @@ class ingresante
         return $resp;
     }
 
+    public function insertar()
+    {
+        $base = new baseDatos();
+        $resp = false;
+        $consultaInsertar = "INSERT INTO Ingresante (dni, tipoDni, nombre, apellido, legajo, correo) 
+				VALUES ('" . $this->getDni() . "','" . $this->getTipoDNI() . "','" . $this->getNombre(). "','" .
+                $this->getApellido() . "','" . $this->getLegajo() . "','" . $this->getCorreo() . "')";
+
+
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consultaInsertar)) {
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
+
+    public function modificar(){
+	    $resp =false; 
+	    $base=new BaseDatos();
+		$consultaModifica="UPDATE ingresante 
+                           SET nombre='".$this->getNombre()."',apellido='".$this->getApellido().
+                           "',legajo='".$this->getLegajo(). "',correo='".$this->getCorreo().
+                           "' WHERE dni='".$this->getDni() ."' AND tipoDni='" . $this->getTipoDNI()."'";			   
+		if($base->Iniciar()){
+			if($base->Ejecutar($consultaModifica)){
+			    $resp=  true;
+			}else{
+				$this->setmensajeoperacion($base->getError());
+				
+			}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp;
+	}
+
+    public function eliminar(){
+		$base=new BaseDatos();
+		$resp=false;
+		if($base->Iniciar()){
+				$consultaBorra="DELETE FROM ingresante WHERE dni='".$this->getDni()."' AND tipoDni='".$this->getTipoDNI()."'";
+				if($base->Ejecutar($consultaBorra)){
+				    $resp=  true;
+				}else{
+					$this->setmensajeoperacion($base->getError());
+					
+				}
+		}else{
+				$this->setmensajeoperacion($base->getError());
+			
+		}
+		return $resp; 
+	}
+
     //función to string para visualizar los datos del ingresante
 
     public function __toString()
