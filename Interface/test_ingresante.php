@@ -885,6 +885,6 @@ while (true) {
 
 
 
-//AGREGAR MODULOS A LAS INSCRIPCIONES
+
 //checkear comentarios y modificar con los params y eso
 //guarda la nueva base de datos
