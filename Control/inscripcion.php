@@ -173,7 +173,7 @@ class inscripcion
         }
         return $res;
     }
-    
+
     /**
      * Función que verifica si existe una actividad pasada por parametro dentro del arreglo de modulos
      * Si es verdadero, la actividad pasada por parametro ya existe en alguno de los módulos
@@ -281,7 +281,6 @@ class inscripcion
      * funcion que evalua en la base de datos la tabla inscripcion_modulo 
      * @return array con los objetos modulos relacionados a la inscripción
      */
-
     public function extraerModulos()
     {
         $base = new BaseDatos();
