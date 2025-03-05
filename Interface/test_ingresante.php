@@ -13,7 +13,7 @@ include_once '../Control/actividad.php';
 //función que muestra por pantalla el menú
 function menu()
 {
-    echo "\n------ MENÚ ------\n";
+    echo "\n\n------ MENÚ ------\n";
     echo "1. ABM actividades\n";
     echo "2. ABM módulos\n";
     echo "3. ABM inscripciones\n";
@@ -679,7 +679,6 @@ function inscripcionesPorActividad()
         if (empty($arreglo)) {
             echo "la actividad " . $id . " no tiene inscripciones asociadas\n";
         } else {
-            echo "Visualización de de inscripciones realizadas a la actividad con ID: " . $id . "\n";
             foreach ($arreglo as $inscripcion) {
                 echo $inscripcion;
             }

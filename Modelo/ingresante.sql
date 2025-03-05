@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-03-2025 a las 16:12:39
+-- Tiempo de generación: 05-03-2025 a las 19:57:42
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -88,8 +88,8 @@ CREATE TABLE `ingresante` (
   `tipoDni` varchar(10) NOT NULL,
   `nombre` varchar(100) NOT NULL,
   `apellido` varchar(100) NOT NULL,
-  `legajo` varchar(20) NOT NULL,
-  `correo` varchar(255) NOT NULL
+  `legajo` varchar(20) DEFAULT NULL,
+  `correo` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -113,10 +113,11 @@ INSERT INTO `ingresante` (`dni`, `tipoDni`, `nombre`, `apellido`, `legajo`, `cor
 ('77884433', 'DNI', 'Florencia', 'Morales', 'FAI-3625', 'florencia.morales@example.com'),
 ('77889900', 'DNI', 'Fernando', 'Sosa', 'FAI-8420', 'fernando.sosa@example.com'),
 ('87654321', 'DNI', 'María', 'López', 'FAI-8293', 'maria.lopez@example.com'),
-('88776655', 'DNI', 'Martina', 'Giménez', 'FAI-4398', 'martina.gimenez@example.com'),
 ('99001122', 'DNI', 'Camila', 'Herrera', 'FAI-5673', 'camila.herrera@example.com'),
+('99001122', 'Pasaporte', 'Williams ', 'Durant', 'FAI -9898', 'williams.durant@example.com'),
 ('99882211', 'DNI', 'Julieta', 'Torres', 'FAI-5829', 'julieta.torres@example.com'),
-('99887766', 'DNI', 'Pedro', 'Fernández', 'FAI-9584', 'pedro.fernandez@example.com');
+('99887766', 'DNI', 'Pedro', 'Fernández', 'FAI-9584', 'pedro.fernandez@example.com'),
+('99887766', 'Pasaporte', 'Cristian ', 'Raymondo', 'FAI-203', 'cristian.raymondo@example.com');
 
 -- --------------------------------------------------------
 
@@ -285,8 +286,7 @@ ALTER TABLE `enlinea`
 --
 ALTER TABLE `ingresante`
   ADD PRIMARY KEY (`dni`,`tipoDni`),
-  ADD UNIQUE KEY `legajo` (`legajo`),
-  ADD UNIQUE KEY `correo` (`correo`);
+  ADD UNIQUE KEY `legajo` (`legajo`) USING BTREE;
 
 --
 -- Indices de la tabla `inscripcion`
@@ -317,7 +317,7 @@ ALTER TABLE `modulo`
 -- AUTO_INCREMENT de la tabla `actividad`
 --
 ALTER TABLE `actividad`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `inscripcion`
