@@ -162,13 +162,19 @@ class modulo
         return $this->cantidadDeInscriptos;
     }
 
-    //funcion que devuelve un boolean en caso de que la gente inscripta sea igua a al tome de ingresantes
+    /**
+     * funcion que devuelve un boolean en caso de que la gente inscripta sea igua a al tome de ingresantes
+     * @return boolean si está lleno
+     */
     public function estaLleno(){
         return $this -> cantidadDeInscriptos >= $this ->topeInscripciones;
     }
     
-    //se añade un valor a la variable de cantidad de inscriptos actuales 
-    //Retorna verdadero o falso, si el módulo está completo de personas, devuelve falso. 
+
+    /**
+     * se añade un valor a la variable de cantidad de inscriptos actuales 
+     * @return boolean si el módulo está completo de personas, devuelve falso. 
+    */
     public function sumarUnInscripto(){
         $res = true;
         if(!$this -> estaLleno()){
@@ -203,7 +209,7 @@ class modulo
         return false;
     }
 
-    //mostrar el modulo solamente con su numero y descripción 
+    //Función que muestra el modulo solamente con su numero y descripción 
     public function toStringBreve(){
         $cadena ="MÓDULO ID " . $this->getId()
             . ": " . $this->getDescripcion();
@@ -228,6 +234,10 @@ class modulo
         return $cadena;
     }
 
+    /**
+     * Función para insertar un módulo a la base de datos 
+     * @return boolean
+     */
     public function insertar()
     {
         $base = new baseDatos();
@@ -249,6 +259,11 @@ class modulo
         return $resp;
     }
 
+    /**
+     * Función para buscar un objeto en la base de datos 
+     * @param id del modulo a buscar
+     * @return boolean si se encontró el modulo teniendo en cuenta el id 
+     */
     public function Buscar($id){
 		$base=new BaseDatos();
 		$consultaPersona="Select * from modulo where id=".$id;
@@ -280,6 +295,11 @@ class modulo
 		 return $resp;
 	}	
 
+    /**
+     * Función que devuelve un arreglo de todos los objetos de esta clase referenciados en la base de datos 
+     * @param condicion
+     * @return array 
+     */
     public function listar($condicion=""){
 	    $arreglo = null;
 		$base=new BaseDatos();
@@ -323,6 +343,10 @@ class modulo
 		 return $arreglo;
 	}
 
+    /**
+     * Añade alguna modificacion a la base de datos en caso de que el objeto haya sido modificado
+     * @return boolean 
+     */
     public function modificar(){
 	    $resp =false; 
 	    $base=new BaseDatos();
@@ -347,6 +371,10 @@ class modulo
 		return $resp;
 	}
 
+    /**
+     * Elimina el objeto en la base de datos
+     * @return boolean 
+     */
     public function eliminar(){
 		$base=new BaseDatos();
 		$resp=false;

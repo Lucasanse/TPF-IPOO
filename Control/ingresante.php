@@ -22,14 +22,14 @@ class ingresante
         $this->correo = "";
     }
 
-    public function cargar ($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo){
+    public function cargar($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo)
+    {
         $this->dni = $dni;
         $this->tipoDNI = $tipoDNI;
         $this->nombre = $nombre;
         $this->apellido = $apellido;
         $this->legajo = $legajo;
         $this->correo = $correo;
-
     }
 
     // Funciones SET 
@@ -92,11 +92,16 @@ class ingresante
         return $this->mensajeoperacion;
     }
 
+    /**
+     * Función que devuelve un arreglo de todos los objetos de esta clase referenciados en la base de datos 
+     * @param condicion
+     * @return array 
+     */
     public function listar($condicion = "")
     {
         $arreglo = null;
         $base = new BaseDatos();
-        
+
         if ($condicion != "") {
             $consulta = $condicion;
         } else {
@@ -106,15 +111,15 @@ class ingresante
             if ($base->Ejecutar($consulta)) {
                 $arreglo = array();
                 while ($row2 = $base->Registro()) {
-                    $dni =($row2['dni']);
-                    $tipoDNI= ($row2['tipoDni']);
-                    $nombre=($row2['nombre']);
-                    $apellido= ($row2['apellido']);
-                    $legajo= ($row2['legajo']);
-                    $correo= ($row2['correo']);
+                    $dni = ($row2['dni']);
+                    $tipoDNI = ($row2['tipoDni']);
+                    $nombre = ($row2['nombre']);
+                    $apellido = ($row2['apellido']);
+                    $legajo = ($row2['legajo']);
+                    $correo = ($row2['correo']);
 
                     $ingresante = new ingresante();
-                    $ingresante-> cargar ($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo);
+                    $ingresante->cargar($dni, $tipoDNI, $nombre, $apellido, $legajo, $correo);
                     array_push($arreglo, $ingresante);
                 }
             } else {
@@ -126,7 +131,11 @@ class ingresante
         return $arreglo;
     }
 
-
+    /**
+     * Función para buscar un objeto en la base de datos 
+     * @param id del modulo a buscar
+     * @return boolean si se encontró el modulo teniendo en cuenta el id 
+     */
     public function Buscar($dni, $tipoDni)
     {
         $base = new BaseDatos();
@@ -160,7 +169,7 @@ class ingresante
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consulta)) {
                 if ($row2 = $base->Registro()) {
-                    if($row2['total']>0){
+                    if ($row2['total'] > 0) {
                         $resp = true;
                     }
                 }
@@ -173,13 +182,17 @@ class ingresante
         return $resp;
     }
 
+    /**
+     * Función para insertar un módulo a la base de datos 
+     * @return boolean
+     */
     public function insertar()
     {
         $base = new baseDatos();
         $resp = false;
         $consultaInsertar = "INSERT INTO Ingresante (dni, tipoDni, nombre, apellido, legajo, correo) 
-				VALUES ('" . $this->getDni() . "','" . $this->getTipoDNI() . "','" . $this->getNombre(). "','" .
-                $this->getApellido() . "','" . $this->getLegajo() . "','" . $this->getCorreo() . "')";
+				VALUES ('" . $this->getDni() . "','" . $this->getTipoDNI() . "','" . $this->getNombre() . "','" .
+            $this->getApellido() . "','" . $this->getLegajo() . "','" . $this->getCorreo() . "')";
 
 
         if ($base->Iniciar()) {
@@ -194,44 +207,50 @@ class ingresante
         return $resp;
     }
 
-    public function modificar(){
-	    $resp =false; 
-	    $base=new BaseDatos();
-		$consultaModifica="UPDATE ingresante 
-                           SET nombre='".$this->getNombre()."',apellido='".$this->getApellido().
-                           "',legajo='".$this->getLegajo(). "',correo='".$this->getCorreo().
-                           "' WHERE dni='".$this->getDni() ."' AND tipoDni='" . $this->getTipoDNI()."'";			   
-		if($base->Iniciar()){
-			if($base->Ejecutar($consultaModifica)){
-			    $resp=  true;
-			}else{
-				$this->setmensajeoperacion($base->getError());
-				
-			}
-		}else{
-				$this->setmensajeoperacion($base->getError());
-			
-		}
-		return $resp;
-	}
+    /**
+     * Añade alguna modificacion a la base de datos en caso de que el objeto haya sido modificado
+     * @return boolean 
+     */
+    public function modificar()
+    {
+        $resp = false;
+        $base = new BaseDatos();
+        $consultaModifica = "UPDATE ingresante 
+                           SET nombre='" . $this->getNombre() . "',apellido='" . $this->getApellido() .
+            "',legajo='" . $this->getLegajo() . "',correo='" . $this->getCorreo() .
+            "' WHERE dni='" . $this->getDni() . "' AND tipoDni='" . $this->getTipoDNI() . "'";
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consultaModifica)) {
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
 
-    public function eliminar(){
-		$base=new BaseDatos();
-		$resp=false;
-		if($base->Iniciar()){
-				$consultaBorra="DELETE FROM ingresante WHERE dni='".$this->getDni()."' AND tipoDni='".$this->getTipoDNI()."'";
-				if($base->Ejecutar($consultaBorra)){
-				    $resp=  true;
-				}else{
-					$this->setmensajeoperacion($base->getError());
-					
-				}
-		}else{
-				$this->setmensajeoperacion($base->getError());
-			
-		}
-		return $resp; 
-	}
+    /**
+     * Elimina el objeto en la base de datos
+     * @return boolean 
+     */
+    public function eliminar()
+    {
+        $base = new BaseDatos();
+        $resp = false;
+        if ($base->Iniciar()) {
+            $consultaBorra = "DELETE FROM ingresante WHERE dni='" . $this->getDni() . "' AND tipoDni='" . $this->getTipoDNI() . "'";
+            if ($base->Ejecutar($consultaBorra)) {
+                $resp =  true;
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+        return $resp;
+    }
 
     //función to string para visualizar los datos del ingresante
 

@@ -29,7 +29,8 @@ class inscripcion
         }
     }
 
-    public function cargar($id, $fecha, $dniIngresante, $tipoDNI){
+    public function cargar($id, $fecha, $dniIngresante, $tipoDNI)
+    {
         $this->id = $id;
         $this->fecha = $fecha;
         $this->dniIngresante = $dniIngresante;
@@ -37,7 +38,7 @@ class inscripcion
         $this->col_objModulo = $this->extraerModulos();
         if ($this->col_objModulo == null) {
             $this->costoFinal = 0;
-            $this -> modificar();
+            $this->modificar();
         } else {
             $this->costoFinal = $this->darCostoInscripcion();
         }
@@ -108,8 +109,9 @@ class inscripcion
 
 
 
-
-    //crea una cadena con una lista de los modulos incorporados a la inscripción
+    /**
+     * crea una cadena con una lista de los modulos incorporados a la inscripción
+     */
     public function listarModulos()
     {
         $cadena = "";
@@ -119,8 +121,11 @@ class inscripcion
         }
         return $cadena;
     }
-
-    //actualiza el costo de la inscripcion teniendo en cuenta los modulos. 
+    /**
+     * actualiza el costo de la inscripcion teniendo en cuenta los modulos. 
+     * @return double
+     */
+    
     public function darCostoInscripcion()
     {
         $montoFinal = 0;
@@ -133,8 +138,12 @@ class inscripcion
         return $montoFinal;
     }
 
-    //metodo que, dado un módulo, corrobora de que su actividad no se repita con otra de otro modulo cargado en la inscripción
-    //si es true, se repiten.
+    /**
+     * metodo que, dado un módulo, corrobora de que su actividad no se repita con otra de otro modulo cargado en la inscripción
+     * si es true, se repiten.
+     * @return boolean
+     */
+    
     public function actividadRepetida($obj_modulo)
     {
         $respuesta = true;
@@ -164,9 +173,12 @@ class inscripcion
         }
         return $res;
     }
-
-    //función que verifica si existe una actividad pasada por parametro dentro del arreglo de modulos
-    //si es verdadero, la actividad pasada por parametro ya existe en alguno de los módulos
+    
+    /**
+     * Función que verifica si existe una actividad pasada por parametro dentro del arreglo de modulos
+     * Si es verdadero, la actividad pasada por parametro ya existe en alguno de los módulos
+     * @return boolean
+     */
     public function existeActividad($obj_actividad)
     {
         $modulos = $this->getCol_objModulo();
@@ -178,6 +190,10 @@ class inscripcion
         return false;
     }
 
+    /**
+     *  Función que extrae las actividades correspondientes a todos los modulos de la inscripción
+     * @return array
+     * */
     public function extraerActividades()
     {
         $res = [];
@@ -187,10 +203,12 @@ class inscripcion
         return $res;
     }
 
-
-    //añade un modulo corroborando que su actividad no se repita con otra de la colección de módulos
-    // verifica tambien de que el modulo no este previamente cargado en la inscripcion y que haya cupo de inscriptos
-
+    /**
+     * añade un modulo corroborando que su actividad no se repita con otra de la colección de módulos
+     * verifica tambien de que el modulo no este previamente cargado en la inscripcion y que haya cupo de inscriptos
+     * @param obj_modulo
+     * @return boolean
+     */
     public function añadirModulo($obj_modulo)
     {
         $res = false;
@@ -227,6 +245,11 @@ class inscripcion
         return $res;
     }
 
+    /**
+     * Elimina el objeto modulo de la inscripción
+     * Elimina la relación en la base de datos 
+     * @return boolean
+     */
     public function eliminarModulo($obj_modulo)
     {
         $res = false;
@@ -254,7 +277,11 @@ class inscripcion
         return $res;
     }
 
-    //funcion que evalua en la base de datos la tabla inscripcion_modulo y devuelve un arreglo con los objetos modulos
+    /**
+     * funcion que evalua en la base de datos la tabla inscripcion_modulo 
+     * @return array con los objetos modulos relacionados a la inscripción
+     */
+
     public function extraerModulos()
     {
         $base = new BaseDatos();
@@ -281,6 +308,10 @@ class inscripcion
         return $modulos;
     }
 
+    /**
+     * Función para insertar un módulo a la base de datos 
+     * @return boolean
+     */
     public function insertar()
     {
         $base = new baseDatos();
@@ -302,11 +333,16 @@ class inscripcion
         return $resp;
     }
 
+    /**
+     * Función que devuelve un arreglo de todos los objetos de esta clase referenciados en la base de datos 
+     * @param condicion
+     * @return array 
+     */
     public function listar($condicion = "")
     {
         $arreglo = null;
         $base = new BaseDatos();
-        
+
         if ($condicion != "") {
             $consulta = $condicion;
         } else {
@@ -323,7 +359,7 @@ class inscripcion
                     $tipodni = $row2['tipoDni'];
 
                     $inscripcion = new inscripcion();
-                    $inscripcion -> cargar($id, $fecha, $dni, $tipodni);
+                    $inscripcion->cargar($id, $fecha, $dni, $tipodni);
                     array_push($arreglo, $inscripcion);
                 }
             } else {
@@ -335,9 +371,11 @@ class inscripcion
         return $arreglo;
     }
 
-
-
-
+    /**
+     * Función para buscar un objeto en la base de datos 
+     * @param id del modulo a buscar
+     * @return boolean si se encontró el modulo teniendo en cuenta el id 
+     */
     public function Buscar($id)
     {
         $base = new BaseDatos();
@@ -363,7 +401,10 @@ class inscripcion
         return $resp;
     }
 
-
+    /**
+     * Añade alguna modificacion a la base de datos en caso de que el objeto haya sido modificado
+     * @return boolean 
+     */
     public function modificar()
     {
         $resp = false;
@@ -385,6 +426,10 @@ class inscripcion
         return $resp;
     }
 
+    /**
+     * Elimina el objeto en la base de datos
+     * @return boolean 
+     */
     public function eliminar()
     {
         $base = new BaseDatos();

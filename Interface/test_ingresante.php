@@ -883,8 +883,3 @@ while (true) {
     }
 }
 
-
-
-
-//checkear comentarios y modificar con los params y eso
-//guarda la nueva base de datos
