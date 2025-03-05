@@ -897,3 +897,10 @@ while (true) {
     }
 }
 
+<<<<<<< Updated upstream
+=======
+
+
+
+//checkear comentarios y modificar con los params y eso
+>>>>>>> Stashed changes

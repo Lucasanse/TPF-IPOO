@@ -71,6 +71,10 @@ class actividad
         return $cadena;
     }
 
+      /**
+     * Función que inserta una actividad en la base de datos
+     * @return boolean si se logró insertar correctamente
+     */
     public function insertar()
     {
         $base = new baseDatos();
@@ -92,6 +96,12 @@ class actividad
         return $resp;
     }
 
+    /**
+     * Función que busca si existe una actividad con ese ID en la base de datos
+     * Si se encuentra, se le asigna al objeto los valores del ID encontrado
+     * @param int $id de la actividad
+     * @return boolean si se encontró
+     */
     public function Buscar($id){
 		$base=new BaseDatos();
 		$consulta="Select * from actividad where id=".$id;
@@ -116,6 +126,12 @@ class actividad
 		 return $resp;
 	}	
 
+
+ /**
+     * Función que lista en un arreglo las actividades de la base de datos 
+     * @param string $condición 
+     * @return array con las actividades
+     */
     public function listar($condicion=""){
 	    $arreglo = null;
 		$base=new BaseDatos();
@@ -152,7 +168,10 @@ class actividad
 		 }	
 		 return $arreglo;
 	}
-
+    /**
+     * Función que modifica algún atributo del objeto en la base de datos  
+     * @return boolean en caso si se modificó con exito
+     */
     public function modificar(){
 	    $resp =false; 
 	    $base=new BaseDatos();
@@ -174,6 +193,10 @@ class actividad
 		return $resp;
 	}
 
+    /**
+     * Función que elimina el objeto en la base de datos 
+     * @return boolean en caso si se eliminó con exito
+     */
     public function eliminar(){
 		$base=new BaseDatos();
 		$resp=false;
