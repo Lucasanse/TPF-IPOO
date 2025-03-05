@@ -389,7 +389,9 @@ function bajaIngresante($obj_ingresante)
     return $res;
 }
 
-//menu que nos permite dar de alta, baja o modificar una actividad
+/**
+ * menu que nos permite dar de alta, baja o modificar una actividad
+ */
 function abmActividad()
 {
     echo "¿Qué desea hacer?\n";
@@ -443,7 +445,10 @@ function abmActividad()
             echo "No existe esa opción";
     }
 }
-//funcion para dar de alta, baja y modificacion de modulos comunes y en linea 
+
+/**
+ * funcion para dar de alta, baja y modificacion de modulos comunes y en linea 
+ */
 function abmModulo()
 {
     //Variable que indica si estamos trabajando con un modulo en linea o no
@@ -512,6 +517,9 @@ function abmModulo()
     }
 }
 
+/**
+ * Menu para dar de alta, baja o modificación de la inscripción
+ */
 function abmAInscripcion()
 {
 
@@ -564,7 +572,9 @@ function abmAInscripcion()
             echo "No existe esa opción";
     }
 }
-
+/**
+ * Menu para dar de alta, baja o modificación del ingresante
+ */
 function abmIngresante()
 {
     echo "¿Qué desea hacer?\n";
@@ -736,7 +746,9 @@ function añadirModuloAUnaInscripción($obj_inscripcion)
         }
     }
 }
-//funcion que elimina un modulo a una inscripcion pasada por parametro
+/**
+ * funcion que elimina un modulo a una inscripcion pasada por parametro
+ */
 function eliminarModuloAUnaInscripcion($obj_inscripcion)
 {
     $id = 1;
@@ -763,7 +775,9 @@ function eliminarModuloAUnaInscripcion($obj_inscripcion)
         }
     }
 }
-//funcion que al buscar un ingresante (tipo y DNI), devuelve todas las actividades en las que está inscripto
+/**
+ * funcion que al buscar un ingresante (tipo y DNI), devuelve todas las actividades en las que está inscripto
+ */
 function actividadesPorIngresantes()
 {
     echo " Ingresar dni del ingresante: \n";

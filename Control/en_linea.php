@@ -4,7 +4,7 @@ class enLinea extends modulo
 {
     private $linkLlamada;
     private $bonificacion;
-    
+
 
     // Constructor
     public function __construct()
@@ -14,11 +14,11 @@ class enLinea extends modulo
         $this->bonificacion = 0;
     }
 
-    public function cargar ($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad, $linkLlamada = null, $bonificacion = null){
+    public function cargar($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad, $linkLlamada = null, $bonificacion = null)
+    {
         parent::cargar($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad);
         $this->linkLlamada = $linkLlamada;
         $this->bonificacion = $bonificacion;
-
     }
 
     // Getter y Setter para linkLlamada
@@ -56,6 +56,10 @@ class enLinea extends modulo
         return true;
     }
 
+    /**
+     * Función para insertar un módulo a la base de datos 
+     * @return boolean
+     */
     public function insertar()
     {
         $resp = false;
@@ -76,7 +80,11 @@ class enLinea extends modulo
             return $resp;
         }
     }
-
+    /**
+     * Función para buscar un objeto en la base de datos 
+     * @param id del modulo a buscar
+     * @return boolean si se encontró el modulo teniendo en cuenta el id 
+     */
     public function Buscar($id)
     {
         $base = new BaseDatos();
@@ -100,31 +108,32 @@ class enLinea extends modulo
         return $resp;
     }
 
-    public function modificar(){
-	    $resp =false; 
-        if (parent:: modificar()){
-            $base=new BaseDatos();
-            $consultaModifica="UPDATE enLinea 
-                               SET linkLlamada='".$this->getLinkLlamada()."',bonificacion=".$this->getBonificacion().
-                               " WHERE id=".$this->getID();
-                               
-            if($base->Iniciar()){
-                if($base->Ejecutar($consultaModifica)){
-                    $resp=  true;
-                }else{
-                    $this->setmensajeoperacion($base->getError());
-                    
-                }
-            }else{
-                    $this->setmensajeoperacion($base->getError());
-                
-            }
+    /**
+     * Añade alguna modificacion a la base de datos en caso de que el objeto haya sido modificado
+     * @return boolean 
+     */
+    public function modificar()
+    {
+        $resp = false;
+        if (parent::modificar()) {
+            $base = new BaseDatos();
+            $consultaModifica = "UPDATE enLinea 
+                               SET linkLlamada='" . $this->getLinkLlamada() . "',bonificacion=" . $this->getBonificacion() .
+                " WHERE id=" . $this->getID();
 
+            if ($base->Iniciar()) {
+                if ($base->Ejecutar($consultaModifica)) {
+                    $resp =  true;
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
         }
 
-		return $resp;
-	}
-
+        return $resp;
+    }
 
     public function __toString()
     {
