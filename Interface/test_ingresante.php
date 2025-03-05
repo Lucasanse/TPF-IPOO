@@ -94,7 +94,10 @@ function altaModulo($enLinea)
 }
 
 
-
+/**
+ * Función que da de alta una inscripción
+ * El ID lo va a establecer la base de datos
+ */
 function altaInscripcion()
 {
     $res = false;
@@ -122,7 +125,10 @@ function altaInscripcion()
     return $res;
 }
 
-
+/**
+ * Función que da de alta un ingresante
+ * El ID lo va a establecer la base de datos
+ */
 function altaIngresante($dni, $tipoDni)
 {
 
