@@ -1,5 +1,5 @@
 <?php
-include_once "BaseDatos.php";
+include_once '../Modelo/baseDatos.php';
 
 class actividad
 {

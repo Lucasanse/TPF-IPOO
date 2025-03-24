@@ -39,7 +39,7 @@ class BaseDatos {
      *
      * @return boolean
      */
-    public  function Iniciar(){
+    public function Iniciar(){
         $resp  = false;
         $conexion = mysqli_connect($this->HOSTNAME,$this->USUARIO,$this->CLAVE,$this->BASEDATOS);
         if ($conexion){

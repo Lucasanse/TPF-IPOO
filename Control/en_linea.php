@@ -1,5 +1,7 @@
 <?php
 
+include_once '../Modelo/baseDatos.php';
+
 class enLinea extends modulo
 {
     private $linkLlamada;
