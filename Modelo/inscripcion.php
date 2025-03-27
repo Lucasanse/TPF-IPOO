@@ -2,7 +2,7 @@
 include_once 'modulo.php';
 include_once 'en_linea.php';
 include_once 'ingresante.php';
-include_once '../Modelo/baseDatos.php';
+include_once 'baseDatos.php';
 
 class inscripcion
 {

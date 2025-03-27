@@ -1,6 +1,6 @@
 <?php
 include_once 'actividad.php';
-include_once '../Modelo/baseDatos.php';
+include_once 'baseDatos.php';
 
 class modulo
 {
@@ -287,7 +287,7 @@ class modulo
                     $this->setCosto($row2['costo']);
                     $this->setCantidadInscriptos($row2['cantidadDeInscriptos']);
 
-                    $obj_actividad=new actividad();
+                    $obj_actividad= new actividad();
                     $obj_actividad -> buscar($row2['actividad_id']);
 
                     $this->setObj_actividad($obj_actividad);

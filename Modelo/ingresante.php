@@ -1,5 +1,5 @@
 <?php
-include_once '../Modelo/baseDatos.php';
+include_once 'baseDatos.php';
 
 class ingresante
 {

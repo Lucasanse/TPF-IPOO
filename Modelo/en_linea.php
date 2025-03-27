@@ -1,6 +1,6 @@
 <?php
 
-include_once '../Modelo/baseDatos.php';
+include_once 'baseDatos.php';
 
 class enLinea extends modulo
 {
@@ -69,7 +69,6 @@ class enLinea extends modulo
         if (parent::insertar()) {
             $consultaInsertar = "INSERT INTO enLinea (id, linkLlamada, bonificacion)
 			VALUES (" . $this->getId() . ", '" . $this->getLinkLlamada() . "'," . $this->getBonificacion() . " )";
-            echo $consultaInsertar . "\n";
             if ($base->Iniciar()) {
                 if ($base->Ejecutar($consultaInsertar)) {
                     $resp =  true;

@@ -1,11 +1,17 @@
 <?php
-include_once '../Control/ingresante.php';
-include_once '../Control/modulo.php';
-include_once '../Control/en_linea.php';
-include_once '../Control/inscripcion.php';
-include_once '../Control/actividad.php';
+include_once '../Modelo/ingresante.php';
+include_once '../Modelo/modulo.php';
+include_once '../Modelo/en_linea.php';
+include_once '../Modelo/inscripcion.php';
+include_once '../Modelo/actividad.php';
 
+/*
+IMPORTANTE:
 
+La el script test tiene acoplada la capa de control y la interface del usuario. 
+Se eliminó la carpeta control
+
+*/
 
 // ------------ funciones ---------------
 
