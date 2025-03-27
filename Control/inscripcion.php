@@ -9,28 +9,25 @@ class inscripcion
     private $id;
     private $fecha;
     private $costoFinal;
-    private $dniIngresante;
-    private $tipoDNI;
-    private $mensajeoperacion;
+    private $obj_ingresante;
     private $col_objModulo;
+    private $mensajeoperacion;
 
     //constructor 
     public function __construct()
     {
         $this->id = 0;
         $this->fecha = "";
-        $this->dniIngresante = "";
-        $this->tipoDNI = "";
+        $this->obj_ingresante = "";
         $this->col_objModulo = [];
         $this->costoFinal = 0;
     }
 
-    public function cargar($id, $fecha, $dniIngresante, $tipoDNI)
+    public function cargar($id, $fecha, $obj_ingresante)
     {
         $this->id = $id;
         $this->fecha = $fecha;
-        $this->dniIngresante = $dniIngresante;
-        $this->tipoDNI = $tipoDNI;
+        $this->obj_ingresante = $obj_ingresante;
         $this->col_objModulo = $this->extraerModulos();
         if ($this->col_objModulo == null) {
             $this->costoFinal = 0;
@@ -56,13 +53,9 @@ class inscripcion
         $this->costoFinal = $costoFinal;
     }
 
-    public function setdniIngresante($dniIngresante)
+    public function setObj_ingresante($obj_ingresante)
     {
-        $this->dniIngresante = $dniIngresante;
-    }
-    public function setTipoDNI($tipoDNI)
-    {
-        $this->tipoDNI = $tipoDNI;
+        $this->obj_ingresante = $obj_ingresante;
     }
     public function setCol_objModulo($col_objModulo)
     {
@@ -86,13 +79,9 @@ class inscripcion
     {
         return $this->costoFinal;
     }
-    public function getdniIngresante()
+    public function getObj_ingresante()
     {
-        return $this->dniIngresante;
-    }
-    public function getTipoDNI()
-    {
-        return $this->tipoDNI;
+        return $this->obj_ingresante;
     }
     public function getmensajeoperacion()
     {
@@ -137,6 +126,7 @@ class inscripcion
     /**
      * metodo que, dado un módulo, corrobora de que su actividad no se repita con otra de otro modulo cargado en la inscripción
      * si es true, se repiten.
+     * @param unknown $obj_modulo
      * @return boolean
      */
     
@@ -146,9 +136,9 @@ class inscripcion
         $actividades = [];
         $modulos = $this->getCol_objModulo();
         foreach ($modulos as $modulo) {
-            array_push($actividades, $modulo->getiDActividad());
+            array_push($actividades, $modulo->getObj_actividad());
         }
-        array_push($actividades, $obj_modulo->getiDActividad());
+        array_push($actividades, $obj_modulo->getObj_actividad());
 
         if (count($actividades) === count(array_unique($actividades))) {
             $respuesta = false;
@@ -313,7 +303,7 @@ class inscripcion
         $resp = false;
         $consultaInsertar = "INSERT INTO inscripcion (fecha, costoFinal, dni, tipoDni) 
 				VALUES ('" . $this->getFecha() . "','" . $this->getCostoFinal() . "','" .
-            $this->getdniIngresante() . "','" . $this->getTipoDNI() . "')";
+            $this->getObj_ingresante() -> getDni(). "','" . $this->getObj_ingresante() -> getTipoDNI(). "')";
 
         if ($base->Iniciar()) {
             if ($id = $base->devuelveIDInsercion($consultaInsertar)) {
@@ -353,8 +343,11 @@ class inscripcion
                     $dni = $row2['dni'];
                     $tipodni = $row2['tipoDni'];
 
+                    $obj_ingresante = new ingresante();
+                    $obj_ingresante-> Buscar($dni,$tipodni);
+
                     $inscripcion = new inscripcion();
-                    $inscripcion->cargar($id, $fecha, $dni, $tipodni);
+                    $inscripcion->cargar($id, $fecha, $obj_ingresante);
                     array_push($arreglo, $inscripcion);
                 }
             } else {
@@ -381,8 +374,11 @@ class inscripcion
                 if ($row2 = $base->Registro()) {
                     $this->setID($id);
                     $this->setFecha($row2['fecha']);
-                    $this->setdniIngresante($row2['dni']);
-                    $this->setTipoDNI($row2['tipoDni']);
+
+                    $obj_ingresante = new ingresante();
+                    $obj_ingresante-> Buscar($row2['dni'],$row2['tipoDni']);
+
+                    $this->setObj_ingresante($obj_ingresante);
                     $this->setCol_objModulo($this->extraerModulos());
                     $this->setCostoFinal($this->darCostoInscripcion());
                     $resp = true;
@@ -406,7 +402,7 @@ class inscripcion
         $base = new BaseDatos();
         $consultaModifica = "UPDATE inscripcion 
                            SET fecha='" . $this->getFecha() . "',costoFinal=" . $this->getCostoFinal() .
-            ",dni='" . $this->getdniIngresante() . "',tipoDni='" . $this->getTipoDNI() .
+            ",dni='" . $this->getObj_ingresante()->getDni() . "',tipoDni='" . $this->getObj_ingresante()->getTipoDNI() .
             "' WHERE id=" . $this->getID();
 
         if ($base->Iniciar()) {
@@ -435,7 +431,6 @@ class inscripcion
             if ($base->Ejecutar($consultaBorra)) {
                 //se restan inscriptos a los modulos que estaban asociados a la inscripción
                 foreach ($modulos as $modulo) {
-                    echo $this;
                     $modulo->restarUnInscripto();
                 }
                 $resp =  true;
@@ -454,9 +449,9 @@ class inscripcion
         $cadena = "\n\n"
             . "DATO DE LA INSCRIPCION " . $this->getId()
             . " | Fecha: " . $this->getFecha()
-            . " | Ingresante con DNI: " . $this->getTipoDNI() . " " . $this->getdniIngresante()
             . " | Costo: $" . $this->getCostoFinal()
-            . "\n Modulos: " . $this->listarModulos();
+            . $this->getObj_ingresante()
+            . "\n Modulos inscriptos: " . $this->listarModulos();
 
         return $cadena;
     }

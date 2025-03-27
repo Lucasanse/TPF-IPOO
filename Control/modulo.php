@@ -13,9 +13,9 @@ class modulo
     private $fechaFin;
     private $topeInscripciones;
     private $costo;
-    private $idActividad;
     private $cantidadDeInscriptos;
     private $mensajeoperacion;
+    private $obj_actividad;
 
     // Constructor
     public function __construct()
@@ -28,11 +28,11 @@ class modulo
         $this->fechaFin = "";
         $this->topeInscripciones = "";
         $this->costo = "";
-        $this->idActividad = "";
+        $this->obj_actividad = "";
         $this->cantidadDeInscriptos = 0;
     }
 
-    public function cargar($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $idActividad)
+    public function cargar($id, $descripcion, $horarioInicio, $horarioCierre, $fechaInicio, $fechaFin, $topeInscripciones, $costo, $obj_actividad)
     {
         $this->id = $id;
         $this->descripcion = $descripcion;
@@ -42,7 +42,7 @@ class modulo
         $this->fechaFin = $fechaFin;
         $this->topeInscripciones = $topeInscripciones;
         $this->costo = $costo;
-        $this->idActividad = $idActividad;
+        $this->obj_actividad = $obj_actividad;
         $this->cantidadDeInscriptos = 0;
     }
 
@@ -90,9 +90,9 @@ class modulo
         $this->costo = $costo;
     }
 
-    public function setIDActividad($idActividad)
+    public function setObj_actividad($obj_actividad)
     {
-        $this->idActividad = $idActividad;
+        $this->obj_actividad = $obj_actividad;
     }
 
     public function setmensajeoperacion($mensajeoperacion)
@@ -136,7 +136,6 @@ class modulo
         return $this->fechaFin;
     }
 
-
     public function getTopeInscripciones()
     {
         return $this->topeInscripciones;
@@ -147,9 +146,9 @@ class modulo
         return $this->costo;
     }
 
-    public function getiDActividad()
+    public function getObj_actividad()
     {
-        return $this->idActividad;
+        return $this->obj_actividad;
     }
 
     public function getmensajeoperacion()
@@ -192,7 +191,7 @@ class modulo
     public function restarUnInscripto()
     {
         $res = true;
-        if ($this->cantidadDeInscriptos != 0) {
+        if ($this->getCantidadDeInscriptos() != 0) {
             $this->setCantidadInscriptos($this->getcantidadDeInscriptos() - 1);
         } else {
             $res = false;
@@ -234,8 +233,8 @@ class modulo
             . " hasta el " . $this->getFechaFin()
             . " | Tope: " . $this->getTopeInscripciones()
             . " | Costo: " . $this->getCosto()
-            . " | Actividad nro: " . $this->getiDActividad()
-            . " | Inscriptos actuales: " . $this->getcantidadDeInscriptos();
+            . " | Inscriptos actuales: " . $this->getcantidadDeInscriptos()
+            . "\n" . $this->getObj_actividad();
 
         return $cadena;
     }
@@ -250,7 +249,7 @@ class modulo
         $resp = false;
         $consultaInsertar = "INSERT INTO Modulo (descripcion, horarioInicio, horarioCierre, fechaInicio, fechaFin, topeInscripciones, costo, cantidadDeInscriptos, actividad_id)
 				VALUES ('" . $this->getDescripcion() . "','" . $this->getHorarioInicio() . "','" . $this->getHorarioCierre() . "','" . $this->getFechaInicio() .
-            "','" . $this->getFechaFin() . "'," . $this->getTopeInscripciones() . "," . $this->getCosto() . "," . 0 . "," . $this->getiDActividad() . ")";
+            "','" . $this->getFechaFin() . "'," . $this->getTopeInscripciones() . "," . $this->getCosto() . "," . 0 . "," . $this->getObj_actividad()->getID() . ")";
 
         if ($base->Iniciar()) {
             if ($id = $base->devuelveIDInsercion($consultaInsertar)) {
@@ -287,7 +286,11 @@ class modulo
                     $this->setTopeInscripciones($row2['topeInscripciones']);
                     $this->setCosto($row2['costo']);
                     $this->setCantidadInscriptos($row2['cantidadDeInscriptos']);
-                    $this->setIDActividad($row2['actividad_id']);
+
+                    $obj_actividad=new actividad();
+                    $obj_actividad -> buscar($row2['actividad_id']);
+
+                    $this->setObj_actividad($obj_actividad);
                     $resp = true;
                 }
             } else {
@@ -327,10 +330,12 @@ class modulo
                     $topeI = $row2['topeInscripciones'];
                     $costo = $row2['costo'];
                     $cantInscriptos = $row2['cantidadDeInscriptos'];
-                    $idAct = $row2['actividad_id'];
+
+                    $obj_actividad = new actividad();
+                    $obj_actividad ->Buscar($row2['actividad_id']);
 
                     $modulo = new modulo();
-                    $modulo->cargar($id, $desc, $hi, $hc, $fi, $ff, $topeI, $costo, $idAct);
+                    $modulo->cargar($id, $desc, $hi, $hc, $fi, $ff, $topeI, $costo, $obj_actividad);
                     $modulo->setCantidadInscriptos($cantInscriptos);
                     array_push($arreglo, $modulo);
                 }
@@ -356,7 +361,7 @@ class modulo
             "',horarioCierre='" . $this->getHorarioCierre() . "',fechaInicio='" . $this->getFechaInicio() .
             "',fechaFin='" . $this->getFechaFin() . "',topeInscripciones=" . $this->getTopeInscripciones() .
             ",costo=" . $this->getCosto() . ",cantidadDeInscriptos=" . $this->getcantidadDeInscriptos() .
-            ",actividad_id=" . $this->getiDActividad() . " WHERE id=" . $this->getID();
+            ",actividad_id=" . $this->getObj_actividad()->getID() . " WHERE id=" . $this->getID();
 
         if ($base->Iniciar()) {
             if ($base->Ejecutar($consultaModifica)) {

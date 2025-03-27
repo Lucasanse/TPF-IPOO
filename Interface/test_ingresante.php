@@ -78,11 +78,11 @@ function altaModulo($enLinea)
             echo "Ingrese el % de bonificación \n";
             $bonificacion = trim(fgets(STDIN));
             $obj_modulo = new enLinea();
-            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad, $link, $bonificacion);
+            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $obj_actividad, $link, $bonificacion);
             $obj_modulo->insertar();
         } else {
             $obj_modulo = new modulo();
-            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $idActividad);
+            $obj_modulo->cargar(0, $descM, $horarioIni, $horarioCierre, $fechaI, $fechaF, $tope, $costo, $obj_actividad);
             $obj_modulo->insertar();
         }
         echo "Se añadió con exito: " . $obj_modulo . "\n";
@@ -111,7 +111,7 @@ function altaInscripcion()
         echo "Ingrese una fecha de realización: \n";
         $fecha = trim(fgets(STDIN));
         $obj_inscripcion = new inscripcion();
-        $obj_inscripcion->cargar(0, $fecha, $dni, $tipoDni);
+        $obj_inscripcion->cargar(0, $fecha, $obj_ingresante);
         //añadimos la inscripcion a la base de dtos
         if ($obj_inscripcion->insertar()) {
             //se añaden los módulos
@@ -379,7 +379,6 @@ function bajaInscripcion($obj_inscripcion)
     $res = false;
     if ($obj_inscripcion->eliminar()) {
         $res = true;
-        echo "Se eliminó: " . $obj_inscripcion . "\n";
     }
     return $res;
 }
