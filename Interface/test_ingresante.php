@@ -19,7 +19,7 @@ function menu()
     echo "3. ABM inscripciones\n";
     echo "4. Visualizar las inscripciones realizadas\n";
     echo "5. Visualizar las inscripciones realizadas a un modulo determinado\n";
-    echo "6. Visualziar las inscripciones ralizadas a una actividad determinada\n";
+    echo "6. Visualizar las inscripciones ralizadas a una actividad determinada\n";
     echo "7. Registros que poseen el mismo DNI y aparecen mas de una vez dado un módulo\n";
     echo "8. Visualizar la informacion de todas las actividades que se inscribió un ingresante\n";
     echo "------------ EXTRAS ------------\n";

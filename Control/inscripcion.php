@@ -21,12 +21,8 @@ class inscripcion
         $this->fecha = "";
         $this->dniIngresante = "";
         $this->tipoDNI = "";
-        $this->col_objModulo = $this->extraerModulos();
-        if ($this->col_objModulo == null) {
-            $this->costoFinal = 0;
-        } else {
-            $this->costoFinal = $this->darCostoInscripcion();
-        }
+        $this->col_objModulo = [];
+        $this->costoFinal = 0;
     }
 
     public function cargar($id, $fecha, $dniIngresante, $tipoDNI)
